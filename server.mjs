@@ -12,6 +12,7 @@ import * as path from 'node:path';
 
 const PORT = 8000;
 
+/** @type {Record<string, string>} */
 const MIME_TYPES = {
     default: 'application/octet-stream',
     html: 'text/html; charset=UTF-8',
@@ -29,7 +30,7 @@ const STATIC_PATH = path.join(process.cwd(), './static');
 
 const toBool = [() => true, () => false];
 
-const prepareFile = async (url) => {
+const prepareFile = async (/** @type {string} */ url) => {
     const paths = [STATIC_PATH, url];
     if (url.endsWith('/')) paths.push('index.html');
     const filePath = path.join(...paths);
@@ -43,6 +44,7 @@ const prepareFile = async (url) => {
 };
 
 http.createServer(async (req, res) => {
+    // @ts-ignore
     const file = await prepareFile(req.url);
     const statusCode = file.found ? 200 : 404;
     const mimeType = MIME_TYPES[file.ext] || MIME_TYPES.default;
