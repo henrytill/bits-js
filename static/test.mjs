@@ -1,22 +1,11 @@
 // @ts-check
 
-/**
- * Create a greeting
- *
- * @param {string} person - The name of a person to greet
- * @param {Date} today - Today's date
- * @returns {string}
- */
-function greet(person, today = new Date()) {
-    return `Hello ${person}, today is ${today.toDateString()}!`;
-}
-
-console.log(greet("Henry"));
-
-/** TESTS */
+import { greet } from './greet.mjs';
 
 // @ts-ignore
 const assert = chai.assert;
+
+console.log(greet("Henry"));
 
 describe('Array', function () {
     describe('#indexOf()', function () {
