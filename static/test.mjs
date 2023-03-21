@@ -2,7 +2,6 @@
 
 import { greet } from "./greet.mjs";
 
-// @ts-ignore
 const assert = chai.assert;
 
 console.log(greet("Henry"));
