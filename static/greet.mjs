@@ -8,5 +8,5 @@
  * @returns {string}
  */
 export function greet(person, today = new Date()) {
-    return `Hello ${person}, today is ${today.toDateString()}!`;
+  return `Hello ${person}, today is ${today.toDateString()}!`;
 }
