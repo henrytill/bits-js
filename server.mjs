@@ -1,3 +1,5 @@
+// @ts-check
+
 /* eslint-env node */
 
 /**
