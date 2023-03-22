@@ -6,6 +6,9 @@
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  */
 
+const KEY_DERIVATION_FN = "PBKDF2";
+const ALGO_NAME = "AES-GCM";
+
 /**
  * Generates key material from a password
  *
@@ -17,7 +20,7 @@ function generateKeyMaterial(password) {
   return window.crypto.subtle.importKey(
     "raw",
     encoder.encode(password),
-    { name: "PBKDF2" },
+    { name: KEY_DERIVATION_FN },
     false,
     ["deriveBits", "deriveKey"]
   );
@@ -41,19 +44,13 @@ export class Password {
    */
   async generateKey(salt) {
     const keyMaterial = await generateKeyMaterial(this.text);
-    const key = await window.crypto.subtle.deriveKey(
-      {
-        name: "PBKDF2",
-        salt: salt,
-        iterations: 100000,
-        hash: "SHA-256",
-      },
+    return window.crypto.subtle.deriveKey(
+      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: "SHA-256" },
       keyMaterial,
-      { name: "AES-GCM", length: 256 },
+      { name: ALGO_NAME, length: 256 },
       true,
       ["encrypt", "decrypt"]
     );
-    return key;
   }
 }
 
@@ -117,10 +114,7 @@ export async function encrypt(
 ) {
   const key = await password.generateKey(salt);
   const bytes = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-GCM",
-      iv: iv,
-    },
+    { name: ALGO_NAME, iv },
     key,
     plaintext.toBytes()
   );
@@ -139,15 +133,6 @@ export async function encrypt(
 export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
-    .decrypt(
-      {
-        name: "AES-GCM",
-        iv: iv,
-      },
-      key,
-      ciphertext.bytes
-    )
-    .then((bytes) => {
-      return Plaintext.fromBytes(bytes);
-    });
+    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes)
+    .then((bytes) => Plaintext.fromBytes(bytes));
 }
