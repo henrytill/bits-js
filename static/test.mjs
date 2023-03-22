@@ -11,8 +11,9 @@ if (window.isSecureContext) {
 describe("encrypt()", function () {
   it("should round-trip", async function () {
     let expected = "A moving stream of information";
-    let { ciphertext, salt, iv } = await encrypt(expected);
-    let actual = await decrypt(ciphertext, salt, iv);
+    let password = "abc123";
+    let { ciphertext, salt, iv } = await encrypt(password, expected);
+    let actual = await decrypt(password, ciphertext, salt, iv);
     chai.assert.equal(expected, actual);
   });
 });

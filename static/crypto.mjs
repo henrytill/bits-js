@@ -12,7 +12,7 @@
  * @param {string} password - Password
  * @returns {Promise<CryptoKey>} - Key material
  */
-function getKeyMaterial(password = "abc123") {
+function generateKeyMaterial(password) {
   let encoder = new TextEncoder();
   return window.crypto.subtle.importKey(
     "raw",
@@ -24,13 +24,13 @@ function getKeyMaterial(password = "abc123") {
 }
 
 /**
- * Creates a crypto key from key material and salt
+ * Creates a CryptoKey from key material and salt
  *
  * @param {CryptoKey} keyMaterial - Key material
  * @param {Salt} salt - Salt
  * @returns {Promise<CryptoKey>} - Key
  */
-function getKey(keyMaterial, salt) {
+function generateKey(keyMaterial, salt) {
   return window.crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
@@ -48,19 +48,21 @@ function getKey(keyMaterial, salt) {
 /**
  * Encrypts a plaintext
  *
+ * @param {string} password - Password
  * @param {string} plaintext - Plaintext to encrypt
  * @param {Salt} salt - Salt
  * @param {InitVec} iv - Initialization vector
  * @returns {Promise<{ ciphertext: ArrayBuffer, salt: Salt, iv: InitVec }>}
  */
 export async function encrypt(
+  password,
   plaintext,
   salt = window.crypto.getRandomValues(new Uint8Array(16)),
   iv = window.crypto.getRandomValues(new Uint8Array(12))
 ) {
   let encoder = new TextEncoder();
-  let keyMaterial = await getKeyMaterial();
-  let key = await getKey(keyMaterial, salt);
+  let keyMaterial = await generateKeyMaterial(password);
+  let key = await generateKey(keyMaterial, salt);
   let ciphertext = await window.crypto.subtle.encrypt(
     {
       name: "AES-GCM",
@@ -75,14 +77,15 @@ export async function encrypt(
 /**
  * Decrypts a ciphertext
  *
+ * @param {string} password - Password
  * @param {ArrayBuffer} ciphertext - Ciphertext to decrypt
  * @param {Salt} salt - Salt
  * @param {InitVec} iv - Initialization vector
  * @returns {Promise<string>} - Plaintext
  */
-export async function decrypt(ciphertext, salt, iv) {
-  let keyMaterial = await getKeyMaterial();
-  let key = await getKey(keyMaterial, salt);
+export async function decrypt(password, ciphertext, salt, iv) {
+  let keyMaterial = await generateKeyMaterial(password);
+  let key = await generateKey(keyMaterial, salt);
   return window.crypto.subtle
     .decrypt(
       {
