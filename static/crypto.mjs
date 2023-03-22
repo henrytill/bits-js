@@ -7,13 +7,13 @@
  */
 
 /**
- * Creates key material from a password
+ * Generates key material from a password
  *
- * @param {string} password - Password
- * @returns {Promise<CryptoKey>} - Key material
+ * @param {string} password
+ * @returns {Promise<CryptoKey>}
  */
 function generateKeyMaterial(password) {
-  let encoder = new TextEncoder();
+  const encoder = new TextEncoder();
   return window.crypto.subtle.importKey(
     "raw",
     encoder.encode(password),
@@ -23,36 +23,91 @@ function generateKeyMaterial(password) {
   );
 }
 
-/**
- * Creates a CryptoKey from key material and salt
- *
- * @param {CryptoKey} keyMaterial - Key material
- * @param {Salt} salt - Salt
- * @returns {Promise<CryptoKey>} - Key
- */
-function generateKey(keyMaterial, salt) {
-  return window.crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: salt,
-      iterations: 100000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    { name: "AES-GCM", length: 256 },
-    true,
-    ["encrypt", "decrypt"]
-  );
+export class Password {
+  /**
+   * Constructs a new Password
+   *
+   * @param {string} text
+   */
+  constructor(text) {
+    this.text = text;
+  }
+
+  /**
+   * Generates a CryptoKey
+   *
+   * @param {Salt} salt
+   * @returns {Promise<CryptoKey>}
+   */
+  async generateKey(salt) {
+    const keyMaterial = await generateKeyMaterial(this.text);
+    const key = await window.crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256",
+      },
+      keyMaterial,
+      { name: "AES-GCM", length: 256 },
+      true,
+      ["encrypt", "decrypt"]
+    );
+    return key;
+  }
+}
+
+export class Plaintext {
+  /**
+   * Creates an instance of Plaintext
+   *
+   * @param {string} text
+   */
+  constructor(text) {
+    this.text = text;
+  }
+
+  /**
+   * Constructs a new Plaintext from UTF8-encoded bytes
+   *
+   * @param {ArrayBuffer} bytes
+   * @returns {Plaintext}
+   */
+  static fromBytes(bytes) {
+    const decoder = new TextDecoder();
+    return new Plaintext(decoder.decode(bytes));
+  }
+
+  /**
+   * Converts a Plaintext to UTF8-encoded bytes
+   *
+   * @returns {ArrayBuffer}
+   */
+  toBytes() {
+    const encoder = new TextEncoder();
+    return encoder.encode(this.text);
+  }
+}
+
+export class Ciphertext {
+  /**
+   * Constructs a new Ciphertext
+   *
+   * @param {ArrayBuffer} bytes
+   */
+  constructor(bytes) {
+    this.bytes = bytes;
+  }
 }
 
 /**
- * Encrypts a plaintext
+ * Encrypts a Plaintext
  *
- * @param {string} password - Password
- * @param {string} plaintext - Plaintext to encrypt
- * @param {Salt} salt - Salt
- * @param {InitVec} iv - Initialization vector
- * @returns {Promise<{ ciphertext: ArrayBuffer, salt: Salt, iv: InitVec }>}
+ * @param {Password} password
+ * @param {Plaintext} plaintext
+ * @param {Salt} salt
+ * @param {InitVec} iv
+ * @returns {Promise<{ ciphertext: Ciphertext, salt: Salt, iv: InitVec }>}
  */
 export async function encrypt(
   password,
@@ -60,32 +115,29 @@ export async function encrypt(
   salt = window.crypto.getRandomValues(new Uint8Array(16)),
   iv = window.crypto.getRandomValues(new Uint8Array(12))
 ) {
-  let encoder = new TextEncoder();
-  let keyMaterial = await generateKeyMaterial(password);
-  let key = await generateKey(keyMaterial, salt);
-  let ciphertext = await window.crypto.subtle.encrypt(
+  const key = await password.generateKey(salt);
+  const bytes = await window.crypto.subtle.encrypt(
     {
       name: "AES-GCM",
       iv: iv,
     },
     key,
-    encoder.encode(plaintext)
+    plaintext.toBytes()
   );
-  return { ciphertext, salt, iv };
+  return { ciphertext: new Ciphertext(bytes), salt, iv };
 }
 
 /**
- * Decrypts a ciphertext
+ * Decrypts a Ciphertext
  *
- * @param {string} password - Password
- * @param {ArrayBuffer} ciphertext - Ciphertext to decrypt
- * @param {Salt} salt - Salt
- * @param {InitVec} iv - Initialization vector
- * @returns {Promise<string>} - Plaintext
+ * @param {Password} password
+ * @param {Ciphertext} ciphertext
+ * @param {Salt} salt
+ * @param {InitVec} iv
+ * @returns {Promise<Plaintext>}
  */
 export async function decrypt(password, ciphertext, salt, iv) {
-  let keyMaterial = await generateKeyMaterial(password);
-  let key = await generateKey(keyMaterial, salt);
+  const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt(
       {
@@ -93,10 +145,9 @@ export async function decrypt(password, ciphertext, salt, iv) {
         iv: iv,
       },
       key,
-      ciphertext
+      ciphertext.bytes
     )
-    .then((buffer) => {
-      let decoder = new TextDecoder();
-      return decoder.decode(buffer);
+    .then((bytes) => {
+      return Plaintext.fromBytes(bytes);
     });
 }
