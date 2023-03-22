@@ -1,10 +1,7 @@
 // @ts-check
 
-import { greet } from "./greet.mjs";
 
 const assert = chai.assert;
-
-console.log(greet("Henry"));
 
 describe("Array", function () {
   describe("#indexOf()", function () {
