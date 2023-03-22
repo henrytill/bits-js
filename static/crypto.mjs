@@ -9,14 +9,40 @@
 const KEY_DERIVATION_FN = "PBKDF2";
 const ALGO_NAME = "AES-GCM";
 
-export class Password {
+class EndecableText {
+  /**
+   * @param {string} text
+   */
+  constructor(text) {
+    this.text = text;
+  }
+
+  /**
+   * @param {ArrayBuffer} bytes
+   * @returns {EndecableText}
+   */
+  static decode(bytes) {
+    const decoder = new TextDecoder();
+    return new this(decoder.decode(bytes));
+  }
+
+  /**
+   * @returns {ArrayBuffer}
+   */
+  encode() {
+    const encoder = new TextEncoder();
+    return encoder.encode(this.text);
+  }
+}
+
+export class Password extends EndecableText {
   /**
    * Constructs a new Password
    *
    * @param {string} text
    */
   constructor(text) {
-    this.text = text;
+    super(text);
   }
 
   /**
@@ -35,16 +61,6 @@ export class Password {
       ["encrypt", "decrypt"]
     );
   }
-
-  /**
-   * Converts a Plaintext to UTF8-encoded bytes
-   *
-   * @returns {ArrayBuffer}
-   */
-  toBytes() {
-    const encoder = new TextEncoder();
-    return encoder.encode(this.text);
-  }
 }
 
 /**
@@ -56,21 +72,21 @@ export class Password {
 function generateKeyMaterial(password) {
   return window.crypto.subtle.importKey(
     "raw",
-    password.toBytes(),
+    password.encode(),
     { name: KEY_DERIVATION_FN },
     false,
     ["deriveBits", "deriveKey"]
   );
 }
 
-export class Plaintext {
+export class Plaintext extends EndecableText {
   /**
    * Creates an instance of Plaintext
    *
    * @param {string} text
    */
   constructor(text) {
-    this.text = text;
+    super(text);
   }
 
   /**
@@ -89,7 +105,7 @@ export class Plaintext {
    *
    * @returns {ArrayBuffer}
    */
-  toBytes() {
+  encode() {
     const encoder = new TextEncoder();
     return encoder.encode(this.text);
   }
@@ -125,7 +141,7 @@ export async function encrypt(
   const bytes = await window.crypto.subtle.encrypt(
     { name: ALGO_NAME, iv },
     key,
-    plaintext.toBytes()
+    plaintext.encode()
   );
   return { ciphertext: new Ciphertext(bytes), salt, iv };
 }
@@ -143,5 +159,5 @@ export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes)
-    .then((bytes) => Plaintext.fromBytes(bytes));
+    .then((bytes) => Plaintext.decode(bytes));
 }
