@@ -9,23 +9,6 @@
 const KEY_DERIVATION_FN = "PBKDF2";
 const ALGO_NAME = "AES-GCM";
 
-/**
- * Generates key material from a password
- *
- * @param {string} password
- * @returns {Promise<CryptoKey>}
- */
-function generateKeyMaterial(password) {
-  const encoder = new TextEncoder();
-  return window.crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    { name: KEY_DERIVATION_FN },
-    false,
-    ["deriveBits", "deriveKey"]
-  );
-}
-
 export class Password {
   /**
    * Constructs a new Password
@@ -43,7 +26,7 @@ export class Password {
    * @returns {Promise<CryptoKey>}
    */
   async generateKey(salt) {
-    const keyMaterial = await generateKeyMaterial(this.text);
+    const keyMaterial = await generateKeyMaterial(this);
     return window.crypto.subtle.deriveKey(
       { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: "SHA-256" },
       keyMaterial,
@@ -52,6 +35,32 @@ export class Password {
       ["encrypt", "decrypt"]
     );
   }
+
+  /**
+   * Converts a Plaintext to UTF8-encoded bytes
+   *
+   * @returns {ArrayBuffer}
+   */
+  toBytes() {
+    const encoder = new TextEncoder();
+    return encoder.encode(this.text);
+  }
+}
+
+/**
+ * Generates key material from a password
+ *
+ * @param {Password} password
+ * @returns {Promise<CryptoKey>}
+ */
+function generateKeyMaterial(password) {
+  return window.crypto.subtle.importKey(
+    "raw",
+    password.toBytes(),
+    { name: KEY_DERIVATION_FN },
+    false,
+    ["deriveBits", "deriveKey"]
+  );
 }
 
 export class Plaintext {
