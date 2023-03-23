@@ -10,7 +10,7 @@
  * @typedef {{ text: function(): string }} HasText
  *
  * @typedef {Object & HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
- * @typedef {Object & HasText & HasEncode } Plaintext
+ * @typedef {Object & HasText & HasEncode} Plaintext
  * @typedef {Object & HasBytes} Ciphertext
  */
 
