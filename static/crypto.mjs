@@ -88,27 +88,6 @@ export class Plaintext extends EndecableText {
   constructor(text) {
     super(text);
   }
-
-  /**
-   * Constructs a new Plaintext from UTF8-encoded bytes
-   *
-   * @param {ArrayBuffer} bytes
-   * @returns {Plaintext}
-   */
-  static fromBytes(bytes) {
-    const decoder = new TextDecoder();
-    return new Plaintext(decoder.decode(bytes));
-  }
-
-  /**
-   * Converts a Plaintext to UTF8-encoded bytes
-   *
-   * @returns {ArrayBuffer}
-   */
-  encode() {
-    const encoder = new TextEncoder();
-    return encoder.encode(this.text);
-  }
 }
 
 export class Ciphertext {
