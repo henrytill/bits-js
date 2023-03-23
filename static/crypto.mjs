@@ -27,20 +27,20 @@ const ALGO_NAME = 'AES-GCM';
  * @param {string} text
  * @returns {HasEncode}
  */
-function makeTextEncoder(text) {
+const makeTextEncoder = text => {
   return Object.freeze({
     encode: () => {
       const encoder = new TextEncoder();
       return encoder.encode(text);
     },
   });
-}
+};
 
 /**
  * @param {HasEncode} password
  * @returns {Promise<CryptoKey>}
  */
-function generateKeyMaterial(password) {
+const generateKeyMaterial = password => {
   return window.crypto.subtle.importKey(
     'raw',
     password.encode(),
@@ -48,13 +48,13 @@ function generateKeyMaterial(password) {
     false,
     ['deriveBits', 'deriveKey'],
   );
-}
+};
 
 /**
  * @param {string} text
  * @returns {Password}
  */
-export function makePassword(text) {
+export const makePassword = text => {
   const inner = text;
   const encoder = makeTextEncoder(inner);
   return Object.freeze({
@@ -70,39 +70,39 @@ export function makePassword(text) {
       );
     },
   });
-}
+};
 
 /**
  * @param {string} text
  * @returns {Plaintext}
  */
-export function makePlaintext(text) {
+export const makePlaintext = text => {
   const inner = text;
   const encoder = makeTextEncoder(inner);
   return Object.freeze({
     ...encoder,
     text: () => inner,
   });
-}
+};
 
 /**
  * @param {ArrayBuffer} bytes
  * @returns {Plaintext}
  */
-function makePlaintextFromBytes(bytes) {
+const makePlaintextFromBytes = bytes => {
   const decoder = new TextDecoder();
   return makePlaintext(decoder.decode(bytes));
-}
+};
 
 /**
  * @param {ArrayBuffer} bytes
  * @returns {Ciphertext}
  */
-function makeCiphertext(bytes) {
+const makeCiphertext = bytes => {
   return Object.freeze({
     bytes: () => bytes,
   });
-}
+};
 
 /**
  * Encrypts a Plaintext
@@ -113,12 +113,12 @@ function makeCiphertext(bytes) {
  * @param {InitVec} iv
  * @returns {Promise<{ ciphertext: Ciphertext, salt: Salt, iv: InitVec }>}
  */
-export async function encrypt(
+export const encrypt = async (
   password,
   plaintext,
   salt = window.crypto.getRandomValues(new Uint8Array(16)),
   iv = window.crypto.getRandomValues(new Uint8Array(12)),
-) {
+) => {
   const key = await password.generateKey(salt);
   const bytes = await window.crypto.subtle.encrypt(
     { name: ALGO_NAME, iv },
@@ -126,7 +126,7 @@ export async function encrypt(
     plaintext.encode(),
   );
   return { ciphertext: makeCiphertext(bytes), salt, iv };
-}
+};
 
 /**
  * Decrypts a Ciphertext
@@ -137,9 +137,9 @@ export async function encrypt(
  * @param {InitVec} iv
  * @returns {Promise<Plaintext>}
  */
-export async function decrypt(password, ciphertext, salt, iv) {
+export const decrypt = async (password, ciphertext, salt, iv) => {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes())
-    .then(bytes => makePlaintextFromBytes(bytes));
-}
+    .then(makePlaintextFromBytes);
+};
