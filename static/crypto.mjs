@@ -22,12 +22,12 @@ const ALGO_NAME = 'AES-GCM';
  * @returns {HasEncode}
  */
 function makeTextEncoder(text) {
-  return {
+  return Object.freeze({
     encode: () => {
       const encoder = new TextEncoder();
       return encoder.encode(text);
     },
-  };
+  });
 }
 
 /**
@@ -37,9 +37,9 @@ function makeTextEncoder(text) {
 export function makePassword(text) {
   const inner = text;
   const encoder = makeTextEncoder(inner);
-  return {
+  return Object.freeze({
     text: () => inner,
-    generateKey: async salt => {
+    generateKey: async (/** @type {Salt} */ salt) => {
       const keyMaterial = await generateKeyMaterial(encoder);
       return window.crypto.subtle.deriveKey(
         { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
@@ -49,7 +49,7 @@ export function makePassword(text) {
         ['encrypt', 'decrypt'],
       );
     },
-  };
+  });
 }
 
 /**
@@ -73,10 +73,10 @@ function generateKeyMaterial(password) {
 export function makePlaintext(text) {
   const inner = text;
   const encoder = makeTextEncoder(inner);
-  return {
+  return Object.freeze({
     ...encoder,
     text: () => inner,
-  };
+  });
 }
 
 /**
@@ -93,9 +93,9 @@ function makePlaintextFromBytes(bytes) {
  * @returns {Ciphertext}
  */
 function makeCiphertext(bytes) {
-  return {
+  return Object.freeze({
     bytes: () => bytes,
-  };
+  });
 }
 
 /**
