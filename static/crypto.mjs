@@ -6,11 +6,17 @@
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  *
  * @typedef {{ encode: () => ArrayBuffer }} HasEncode
+ *
  * @typedef {{ bytes: () => ArrayBuffer }} HasBytes
+ *
  * @typedef {{ text: () => string }} HasText
  *
- * @typedef {HasText & { generateKey: (salt: Salt) => Promise<CryptoKey> }} Password
+ * @typedef {HasText & {
+ *   generateKey: (salt: Salt) => Promise<CryptoKey>
+ * }} Password
+ *
  * @typedef {HasText & HasEncode} Plaintext
+ *
  * @typedef {HasBytes} Ciphertext
  */
 
