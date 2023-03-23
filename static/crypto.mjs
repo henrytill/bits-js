@@ -31,6 +31,20 @@ function makeTextEncoder(text) {
 }
 
 /**
+ * @param {HasEncode} password
+ * @returns {Promise<CryptoKey>}
+ */
+function generateKeyMaterial(password) {
+  return window.crypto.subtle.importKey(
+    'raw',
+    password.encode(),
+    { name: KEY_DERIVATION_FN },
+    false,
+    ['deriveBits', 'deriveKey'],
+  );
+}
+
+/**
  * @param {string} text
  * @returns {Password}
  */
@@ -50,20 +64,6 @@ export function makePassword(text) {
       );
     },
   });
-}
-
-/**
- * @param {HasEncode} password
- * @returns {Promise<CryptoKey>}
- */
-function generateKeyMaterial(password) {
-  return window.crypto.subtle.importKey(
-    'raw',
-    password.encode(),
-    { name: KEY_DERIVATION_FN },
-    false,
-    ['deriveBits', 'deriveKey'],
-  );
 }
 
 /**
