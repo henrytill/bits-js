@@ -1,20 +1,18 @@
 /* eslint-disable no-undef */
 module.exports = {
-  "env": {
-    "browser": true,
-    "es2021": true,
-    "mocha": true
+  env: {
+    browser: true,
+    es2021: true,
+    mocha: true,
   },
-  "extends": "eslint:recommended",
-  "overrides": [
-  ],
-  "parserOptions": {
-    "ecmaVersion": "2021",
-    "sourceType": "module"
+  extends: 'eslint:recommended',
+  overrides: [],
+  parserOptions: {
+    ecmaVersion: '2021',
+    sourceType: 'module',
   },
-  "rules": {
+  rules: {},
+  globals: {
+    chai: 'readonly',
   },
-  "globals": {
-    "chai": "readonly"
-  }
-}
+};

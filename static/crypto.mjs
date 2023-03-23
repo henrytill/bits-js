@@ -6,8 +6,8 @@
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  */
 
-const KEY_DERIVATION_FN = "PBKDF2";
-const ALGO_NAME = "AES-GCM";
+const KEY_DERIVATION_FN = 'PBKDF2';
+const ALGO_NAME = 'AES-GCM';
 
 class EndecableText {
   /**
@@ -54,11 +54,11 @@ export class Password extends EndecableText {
   async generateKey(salt) {
     const keyMaterial = await generateKeyMaterial(this);
     return window.crypto.subtle.deriveKey(
-      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: "SHA-256" },
+      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
       keyMaterial,
       { name: ALGO_NAME, length: 256 },
       true,
-      ["encrypt", "decrypt"]
+      ['encrypt', 'decrypt'],
     );
   }
 }
@@ -71,11 +71,11 @@ export class Password extends EndecableText {
  */
 function generateKeyMaterial(password) {
   return window.crypto.subtle.importKey(
-    "raw",
+    'raw',
     password.encode(),
     { name: KEY_DERIVATION_FN },
     false,
-    ["deriveBits", "deriveKey"]
+    ['deriveBits', 'deriveKey'],
   );
 }
 
@@ -135,13 +135,13 @@ export async function encrypt(
   password,
   plaintext,
   salt = window.crypto.getRandomValues(new Uint8Array(16)),
-  iv = window.crypto.getRandomValues(new Uint8Array(12))
+  iv = window.crypto.getRandomValues(new Uint8Array(12)),
 ) {
   const key = await password.generateKey(salt);
   const bytes = await window.crypto.subtle.encrypt(
     { name: ALGO_NAME, iv },
     key,
-    plaintext.encode()
+    plaintext.encode(),
   );
   return { ciphertext: new Ciphertext(bytes), salt, iv };
 }
@@ -159,5 +159,5 @@ export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes)
-    .then((bytes) => Plaintext.decode(bytes));
+    .then(bytes => Plaintext.decode(bytes));
 }
