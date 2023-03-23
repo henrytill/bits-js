@@ -9,9 +9,9 @@
  * @typedef {{ bytes: function(): ArrayBuffer }} HasBytes
  * @typedef {{ text: function(): string }} HasText
  *
- * @typedef {Object & HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
- * @typedef {Object & HasText & HasEncode} Plaintext
- * @typedef {Object & HasBytes} Ciphertext
+ * @typedef {HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
+ * @typedef {HasText & HasEncode} Plaintext
+ * @typedef {HasBytes} Ciphertext
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';
