@@ -26,11 +26,11 @@ const ALGO_NAME = 'AES-GCM';
 
 /**
  * @template T
- * @param {string} text
  * @param {function(string): T} ctor
+ * @param {string} text
  * @returns {TextCodec<T>}
  */
-function makeTextCodec(text = '', ctor) {
+function makeTextCodec(ctor, text = '') {
   return {
     decode: bytes => {
       const decoder = new TextDecoder();
@@ -48,7 +48,7 @@ function makeTextCodec(text = '', ctor) {
  * @returns {Password}
  */
 export function makePassword(text = '') {
-  let textCodec = makeTextCodec(text, makePassword);
+  let textCodec = makeTextCodec(makePassword, text);
   return {
     text: () => text,
     generateKey: async salt => {
@@ -85,7 +85,7 @@ function generateKeyMaterial(password) {
  * @returns {Plaintext}
  */
 export function makePlaintext(text = '') {
-  let textCodec = makeTextCodec(text, makePlaintext);
+  let textCodec = makeTextCodec(makePlaintext, text);
   return {
     ...textCodec,
     text: () => text,
@@ -139,5 +139,5 @@ export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes())
-    .then(bytes => makePlaintext().decode(bytes));
+    .then(bytes => makeTextCodec(makePlaintext).decode(bytes));
 }
