@@ -5,11 +5,11 @@
  * @typedef {ArrayBuffer | TypedArray | DataView} Salt
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  *
- * @typedef {{ encode: function(): ArrayBuffer }} HasEncode
- * @typedef {{ bytes: function(): ArrayBuffer }} HasBytes
- * @typedef {{ text: function(): string }} HasText
+ * @typedef {{ encode: () => ArrayBuffer }} HasEncode
+ * @typedef {{ bytes: () => ArrayBuffer }} HasBytes
+ * @typedef {{ text: () => string }} HasText
  *
- * @typedef {HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
+ * @typedef {HasText & { generateKey: (salt: Salt) => Promise<CryptoKey> }} Password
  * @typedef {HasText & HasEncode} Plaintext
  * @typedef {HasBytes} Ciphertext
  */
