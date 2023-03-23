@@ -10,32 +10,19 @@
  * @typedef {{ text: function(): string }} HasText
  *
  * @typedef {Object & HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
- * @typedef {Object & HasText & HasEncode & { decode: function(ArrayBuffer): Plaintext }} Plaintext
+ * @typedef {Object & HasText & HasEncode } Plaintext
  * @typedef {Object & HasBytes} Ciphertext
- */
-
-/**
- * @template T
- * @typedef {Object} TextCodec
- * @prop {function(ArrayBuffer): T} decode
- * @prop {function(): ArrayBuffer} encode
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';
 const ALGO_NAME = 'AES-GCM';
 
 /**
- * @template T
- * @param {function(string): T} ctor
  * @param {string} text
- * @returns {TextCodec<T>}
+ * @returns {HasEncode}
  */
-function makeTextCodec(ctor, text = '') {
+function makeTextEncoder(text) {
   return {
-    decode: bytes => {
-      const decoder = new TextDecoder();
-      return ctor(decoder.decode(bytes));
-    },
     encode: () => {
       const encoder = new TextEncoder();
       return encoder.encode(text);
@@ -47,12 +34,13 @@ function makeTextCodec(ctor, text = '') {
  * @param {string} text
  * @returns {Password}
  */
-export function makePassword(text = '') {
-  let textCodec = makeTextCodec(makePassword, text);
+export function makePassword(text) {
+  const inner = text;
+  const encoder = makeTextEncoder(inner);
   return {
-    text: () => text,
+    text: () => inner,
     generateKey: async salt => {
-      const keyMaterial = await generateKeyMaterial(textCodec);
+      const keyMaterial = await generateKeyMaterial(encoder);
       return window.crypto.subtle.deriveKey(
         { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
         keyMaterial,
@@ -65,8 +53,6 @@ export function makePassword(text = '') {
 }
 
 /**
- * Generates key material from a password
- *
  * @param {HasEncode} password
  * @returns {Promise<CryptoKey>}
  */
@@ -84,12 +70,22 @@ function generateKeyMaterial(password) {
  * @param {string} text
  * @returns {Plaintext}
  */
-export function makePlaintext(text = '') {
-  let textCodec = makeTextCodec(makePlaintext, text);
+export function makePlaintext(text) {
+  const inner = text;
+  const encoder = makeTextEncoder(inner);
   return {
-    ...textCodec,
-    text: () => text,
+    ...encoder,
+    text: () => inner,
   };
+}
+
+/**
+ * @param {ArrayBuffer} bytes
+ * @returns {Plaintext}
+ */
+function makePlaintextFromBytes(bytes) {
+  const decoder = new TextDecoder();
+  return makePlaintext(decoder.decode(bytes));
 }
 
 /**
@@ -139,5 +135,5 @@ export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes())
-    .then(bytes => makeTextCodec(makePlaintext).decode(bytes));
+    .then(bytes => makePlaintextFromBytes(bytes));
 }
