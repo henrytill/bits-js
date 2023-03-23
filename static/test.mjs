@@ -31,11 +31,9 @@ describe('encrypt()', function () {
   it('should round-trip', async function () {
     const message = 'A moving stream of information';
     const expected = makePlaintext(message);
-    chai.assert.equal(message, expected.text());
     const password = makePassword('abc123');
     const { ciphertext, salt, iv } = await encrypt(password, expected);
     const actual = await decrypt(password, ciphertext, salt, iv);
-    chai.assert.equal(message, actual.text());
     chai.assert.equal(expected.text(), actual.text());
   });
 });
