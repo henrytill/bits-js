@@ -1,6 +1,6 @@
 // @ts-check
 
-import { Password, Plaintext, encrypt, decrypt } from './crypto.mjs';
+import { makePassword, makePlaintext, encrypt, decrypt } from './crypto.mjs';
 
 if (window.isSecureContext) {
   console.log('This is a secure context.');
@@ -8,15 +8,34 @@ if (window.isSecureContext) {
   console.warn('This is an insecure context.');
 }
 
+const SHOULD_CONSTRUCT =
+  'should construct an object whose underlying text is the same as the text that was passed as an argument';
+
+describe('makePassword()', function () {
+  it(SHOULD_CONSTRUCT, () => {
+    const text = 'A moving stream of information';
+    const password = makePassword(text);
+    chai.assert.equal(text, password.text());
+  });
+});
+
+describe('makePlaintext()', function () {
+  it(SHOULD_CONSTRUCT, () => {
+    const text = 'A moving stream of information';
+    const plaintext = makePlaintext(text);
+    chai.assert.equal(text, plaintext.text());
+  });
+});
+
 describe('encrypt()', function () {
   it('should round-trip', async function () {
     const message = 'A moving stream of information';
-    const expected = new Plaintext(message);
-    chai.assert.equal(message, expected.text);
-    const password = new Password('abc123');
+    const expected = makePlaintext(message);
+    chai.assert.equal(message, expected.text());
+    const password = makePassword('abc123');
     const { ciphertext, salt, iv } = await encrypt(password, expected);
     const actual = await decrypt(password, ciphertext, salt, iv);
-    chai.assert.equal(message, actual.text);
-    chai.assert.deepEqual(expected, actual);
+    chai.assert.equal(message, actual.text());
+    chai.assert.equal(expected.text(), actual.text());
   });
 });

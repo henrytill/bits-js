@@ -4,69 +4,70 @@
  * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
  * @typedef {ArrayBuffer | TypedArray | DataView} Salt
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
+ *
+ * @typedef {{ encode: function(): ArrayBuffer }} HasEncode
+ * @typedef {{ bytes: function(): ArrayBuffer }} HasBytes
+ * @typedef {{ text: function(): string }} HasText
+ *
+ * @typedef {Object & HasText & { generateKey: function(Salt): Promise<CryptoKey> }} Password
+ * @typedef {Object & HasText & HasEncode & { decode: function(ArrayBuffer): Plaintext }} Plaintext
+ * @typedef {Object & HasBytes} Ciphertext
+ */
+
+/**
+ * @template T
+ * @typedef {Object} TextCodec
+ * @prop {function(ArrayBuffer): T} decode
+ * @prop {function(): ArrayBuffer} encode
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';
 const ALGO_NAME = 'AES-GCM';
 
-class EndecableText {
-  /**
-   * @param {string} text
-   */
-  constructor(text) {
-    this.text = text;
-  }
-
-  /**
-   * @param {ArrayBuffer} bytes
-   * @returns {EndecableText}
-   */
-  static decode(bytes) {
-    const decoder = new TextDecoder();
-    return new this(decoder.decode(bytes));
-  }
-
-  /**
-   * @returns {ArrayBuffer}
-   */
-  encode() {
-    const encoder = new TextEncoder();
-    return encoder.encode(this.text);
-  }
+/**
+ * @template T
+ * @param {string} text
+ * @param {function(string): T} ctor
+ * @returns {TextCodec<T>}
+ */
+function makeTextCodec(text = '', ctor) {
+  return {
+    decode: bytes => {
+      const decoder = new TextDecoder();
+      return ctor(decoder.decode(bytes));
+    },
+    encode: () => {
+      const encoder = new TextEncoder();
+      return encoder.encode(text);
+    },
+  };
 }
 
-export class Password extends EndecableText {
-  /**
-   * Constructs a new Password
-   *
-   * @param {string} text
-   */
-  constructor(text) {
-    super(text);
-  }
-
-  /**
-   * Generates a CryptoKey
-   *
-   * @param {Salt} salt
-   * @returns {Promise<CryptoKey>}
-   */
-  async generateKey(salt) {
-    const keyMaterial = await generateKeyMaterial(this);
-    return window.crypto.subtle.deriveKey(
-      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
-      keyMaterial,
-      { name: ALGO_NAME, length: 256 },
-      true,
-      ['encrypt', 'decrypt'],
-    );
-  }
+/**
+ * @param {string} text
+ * @returns {Password}
+ */
+export function makePassword(text = '') {
+  let textCodec = makeTextCodec(text, makePassword);
+  return {
+    text: () => text,
+    generateKey: async salt => {
+      const keyMaterial = await generateKeyMaterial(textCodec);
+      return window.crypto.subtle.deriveKey(
+        { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: ALGO_NAME, length: 256 },
+        true,
+        ['encrypt', 'decrypt'],
+      );
+    },
+  };
 }
 
 /**
  * Generates key material from a password
  *
- * @param {Password} password
+ * @param {HasEncode} password
  * @returns {Promise<CryptoKey>}
  */
 function generateKeyMaterial(password) {
@@ -79,33 +80,33 @@ function generateKeyMaterial(password) {
   );
 }
 
-export class Plaintext extends EndecableText {
-  /**
-   * Creates an instance of Plaintext
-   *
-   * @param {string} text
-   */
-  constructor(text) {
-    super(text);
-  }
+/**
+ * @param {string} text
+ * @returns {Plaintext}
+ */
+export function makePlaintext(text = '') {
+  let textCodec = makeTextCodec(text, makePlaintext);
+  return {
+    ...textCodec,
+    text: () => text,
+  };
 }
 
-export class Ciphertext {
-  /**
-   * Constructs a new Ciphertext
-   *
-   * @param {ArrayBuffer} bytes
-   */
-  constructor(bytes) {
-    this.bytes = bytes;
-  }
+/**
+ * @param {ArrayBuffer} bytes
+ * @returns {Ciphertext}
+ */
+function makeCiphertext(bytes) {
+  return {
+    bytes: () => bytes,
+  };
 }
 
 /**
  * Encrypts a Plaintext
  *
  * @param {Password} password
- * @param {Plaintext} plaintext
+ * @param {HasEncode} plaintext
  * @param {Salt} salt
  * @param {InitVec} iv
  * @returns {Promise<{ ciphertext: Ciphertext, salt: Salt, iv: InitVec }>}
@@ -122,14 +123,14 @@ export async function encrypt(
     key,
     plaintext.encode(),
   );
-  return { ciphertext: new Ciphertext(bytes), salt, iv };
+  return { ciphertext: makeCiphertext(bytes), salt, iv };
 }
 
 /**
  * Decrypts a Ciphertext
  *
  * @param {Password} password
- * @param {Ciphertext} ciphertext
+ * @param {HasBytes} ciphertext
  * @param {Salt} salt
  * @param {InitVec} iv
  * @returns {Promise<Plaintext>}
@@ -137,6 +138,6 @@ export async function encrypt(
 export async function decrypt(password, ciphertext, salt, iv) {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
-    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes)
-    .then(bytes => Plaintext.decode(bytes));
+    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes())
+    .then(bytes => makePlaintext().decode(bytes));
 }
