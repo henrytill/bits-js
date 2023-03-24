@@ -7,9 +7,9 @@ import { makeLazy } from './prelude.mjs';
  * @typedef {ArrayBuffer | TypedArray | DataView} Salt
  * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  *
- * @typedef {{ encode: () => ArrayBuffer }} HasEncode
+ * @typedef {{ encode: () => Uint8Array }} HasEncode
  *
- * @typedef {{ bytes: () => ArrayBuffer }} HasBytes
+ * @typedef {{ buffer: () => ArrayBuffer }} HasBuffer
  *
  * @typedef {{ text: () => string }} HasText
  *
@@ -19,7 +19,7 @@ import { makeLazy } from './prelude.mjs';
  *
  * @typedef {HasText & HasEncode} Plaintext
  *
- * @typedef {HasBytes} Ciphertext
+ * @typedef {HasBuffer} Ciphertext
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';
@@ -86,21 +86,21 @@ export const makePlaintext = (text) => {
 };
 
 /**
- * @param {ArrayBuffer} bytes
+ * @param {ArrayBuffer} buffer
  * @returns {Plaintext}
  */
-const makePlaintextFromBytes = (bytes) => {
+const makePlaintextFromBytes = (buffer) => {
   const decoder = new TextDecoder();
-  return makePlaintext(decoder.decode(bytes));
+  return makePlaintext(decoder.decode(buffer));
 };
 
 /**
- * @param {ArrayBuffer} bytes
+ * @param {ArrayBuffer} buffer
  * @returns {Ciphertext}
  */
-const makeCiphertext = (bytes) => {
+const makeCiphertext = (buffer) => {
   return Object.freeze({
-    bytes: () => bytes,
+    buffer: () => buffer,
   });
 };
 
@@ -120,19 +120,19 @@ export const encrypt = async (
   iv = window.crypto.getRandomValues(new Uint8Array(12)),
 ) => {
   const key = await password.generateKey(salt);
-  const bytes = await window.crypto.subtle.encrypt(
+  const buffer = await window.crypto.subtle.encrypt(
     { name: ALGO_NAME, iv },
     key,
     plaintext.encode(),
   );
-  return { ciphertext: makeCiphertext(bytes), salt, iv };
+  return { ciphertext: makeCiphertext(buffer), salt, iv };
 };
 
 /**
  * Decrypts a Ciphertext
  *
  * @param {Password} password
- * @param {HasBytes} ciphertext
+ * @param {HasBuffer} ciphertext
  * @param {Salt} salt
  * @param {InitVec} iv
  * @returns {Promise<Plaintext>}
@@ -140,6 +140,6 @@ export const encrypt = async (
 export const decrypt = async (password, ciphertext, salt, iv) => {
   const key = await password.generateKey(salt);
   return window.crypto.subtle
-    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.bytes())
+    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
     .then(makePlaintextFromBytes);
 };
