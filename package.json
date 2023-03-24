@@ -2,11 +2,14 @@
   "name": "js-bits",
   "private": true,
   "devDependencies": {
-    "@types/chai": "^4.3.4",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
     "@types/mocha": "^10.0.1",
+    "@web/test-runner": "^0.15.1",
     "typescript": "^5.0.2"
   },
   "scripts": {
-    "server": "node server.mjs"
+    "server": "node server.mjs",
+    "test": "web-test-runner --coverage",
+    "test:watch": "web-test-runner --watch"
   }
 }
