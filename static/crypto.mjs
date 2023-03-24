@@ -55,10 +55,9 @@ const generateKeyMaterial = password => {
  * @returns {Password}
  */
 export const makePassword = text => {
-  const inner = text;
-  const encoder = makeTextEncoder(inner);
+  const encoder = makeTextEncoder(text);
   return Object.freeze({
-    text: () => inner,
+    text: () => text,
     generateKey: async (/** @type {Salt} */ salt) => {
       const keyMaterial = await generateKeyMaterial(encoder);
       return window.crypto.subtle.deriveKey(
@@ -77,11 +76,10 @@ export const makePassword = text => {
  * @returns {Plaintext}
  */
 export const makePlaintext = text => {
-  const inner = text;
-  const encoder = makeTextEncoder(inner);
+  const encoder = makeTextEncoder(text);
   return Object.freeze({
     ...encoder,
-    text: () => inner,
+    text: () => text,
   });
 };
 
