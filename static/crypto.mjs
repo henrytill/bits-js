@@ -27,7 +27,7 @@ const ALGO_NAME = 'AES-GCM';
  * @param {string} text
  * @returns {HasEncode}
  */
-const makeTextEncoder = text => {
+const makeTextEncoder = (text) => {
   return Object.freeze({
     encode: () => {
       const encoder = new TextEncoder();
@@ -40,7 +40,7 @@ const makeTextEncoder = text => {
  * @param {HasEncode} password
  * @returns {Promise<CryptoKey>}
  */
-const generateKeyMaterial = password => {
+const generateKeyMaterial = (password) => {
   return window.crypto.subtle.importKey(
     'raw',
     password.encode(),
@@ -54,7 +54,7 @@ const generateKeyMaterial = password => {
  * @param {string} text
  * @returns {Password}
  */
-export const makePassword = text => {
+export const makePassword = (text) => {
   const encoder = makeTextEncoder(text);
   return Object.freeze({
     text: () => text,
@@ -75,7 +75,7 @@ export const makePassword = text => {
  * @param {string} text
  * @returns {Plaintext}
  */
-export const makePlaintext = text => {
+export const makePlaintext = (text) => {
   const encoder = makeTextEncoder(text);
   return Object.freeze({
     ...encoder,
@@ -87,7 +87,7 @@ export const makePlaintext = text => {
  * @param {ArrayBuffer} bytes
  * @returns {Plaintext}
  */
-const makePlaintextFromBytes = bytes => {
+const makePlaintextFromBytes = (bytes) => {
   const decoder = new TextDecoder();
   return makePlaintext(decoder.decode(bytes));
 };
@@ -96,7 +96,7 @@ const makePlaintextFromBytes = bytes => {
  * @param {ArrayBuffer} bytes
  * @returns {Ciphertext}
  */
-const makeCiphertext = bytes => {
+const makeCiphertext = (bytes) => {
   return Object.freeze({
     bytes: () => bytes,
   });
