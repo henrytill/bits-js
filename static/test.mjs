@@ -8,11 +8,14 @@ if (window.isSecureContext) {
   console.warn('This is an insecure context.');
 }
 
+mocha.setup('bdd');
+mocha.checkLeaks();
+
 const SHOULD_CONSTRUCT =
   'should construct an object whose underlying text is the same as the text that was passed as an argument';
 
 describe('makePassword()', function () {
-  it(SHOULD_CONSTRUCT, () => {
+  it(SHOULD_CONSTRUCT, function () {
     const text = 'A moving stream of information';
     const password = makePassword(text);
     chai.assert.equal(text, password.text());
@@ -20,7 +23,7 @@ describe('makePassword()', function () {
 });
 
 describe('makePlaintext()', function () {
-  it(SHOULD_CONSTRUCT, () => {
+  it(SHOULD_CONSTRUCT, function () {
     const text = 'A moving stream of information';
     const plaintext = makePlaintext(text);
     chai.assert.equal(text, plaintext.text());
@@ -37,3 +40,6 @@ describe('encrypt()', function () {
     chai.assert.equal(expected.text(), actual.text());
   });
 });
+
+console.log('Running Mocha tests...');
+mocha.run();
