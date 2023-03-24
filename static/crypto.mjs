@@ -1,5 +1,7 @@
 // @ts-check
 
+import { makeLazy } from './prelude.mjs';
+
 /**
  * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
  * @typedef {ArrayBuffer | TypedArray | DataView} Salt
@@ -29,10 +31,10 @@ const ALGO_NAME = 'AES-GCM';
  */
 const makeTextEncoder = (text) => {
   return Object.freeze({
-    encode: () => {
+    encode: makeLazy(text, (t) => {
       const encoder = new TextEncoder();
-      return encoder.encode(text);
-    },
+      return encoder.encode(t);
+    }),
   });
 };
 
