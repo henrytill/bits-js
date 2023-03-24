@@ -16,7 +16,8 @@
     "lint": "eslint static/*.mjs test/*.mjs",
     "format": "prettier -w .",
     "server": "node server.mjs",
-    "test": "web-test-runner --coverage",
+    "test": "web-test-runner",
+    "test:coverage": "web-test-runner --coverage",
     "test:watch": "web-test-runner --watch"
   }
 }
