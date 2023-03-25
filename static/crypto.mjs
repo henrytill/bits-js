@@ -104,6 +104,14 @@ const makeCiphertext = (buffer) => {
   });
 };
 
+export const makeSalt = () => {
+  return window.crypto.getRandomValues(new Uint8Array(16));
+};
+
+export const makeIV = () => {
+  return window.crypto.getRandomValues(new Uint8Array(12));
+};
+
 /**
  * Encrypts a Plaintext
  *
@@ -116,8 +124,8 @@ const makeCiphertext = (buffer) => {
 export const encrypt = async (
   password,
   plaintext,
-  salt = window.crypto.getRandomValues(new Uint8Array(16)),
-  iv = window.crypto.getRandomValues(new Uint8Array(12)),
+  salt = makeSalt(),
+  iv = makeIV(),
 ) => {
   const key = await password.generateKey(salt);
   const buffer = await window.crypto.subtle.encrypt(
