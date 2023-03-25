@@ -8,6 +8,13 @@
   </head>
   <body>
     <div id="root"></div>
+    <script type="module">
+      if (window.isSecureContext) {
+        console.log('This is a secure context.');
+      } else {
+        console.warn('This is an insecure context.');
+      }
+    </script>
     <script type="module" src="crypto.mjs"></script>
   </body>
 </html>
