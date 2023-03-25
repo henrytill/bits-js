@@ -129,7 +129,8 @@ export const encrypt = async (
     key,
     plaintext.encode(),
   );
-  return { ciphertext: makeCiphertext(buffer), salt, iv };
+  const ciphertext = makeCiphertext(buffer);
+  return { ciphertext, salt, iv };
 };
 
 /**
