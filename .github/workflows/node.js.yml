@@ -29,6 +29,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm ci
+      - run: sudo npx playwright install-deps
+      - run: npx playwright install
       - run: npm run check
       - run: npm run lint
       - run: npm run test:coverage
