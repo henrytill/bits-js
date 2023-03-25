@@ -30,12 +30,11 @@ const ALGO_NAME = 'AES-GCM';
  * @returns {HasEncode}
  */
 const makeTextEncoder = (text) => {
-  return Object.freeze({
-    encode: makeLazy(text, (t) => {
-      const encoder = new TextEncoder();
-      return encoder.encode(t);
-    }),
+  const encode = makeLazy(text, (t) => {
+    const encoder = new TextEncoder();
+    return encoder.encode(t);
   });
+  return Object.freeze({ encode });
 };
 
 /**
@@ -53,36 +52,33 @@ const generateKeyMaterial = (password) => {
 };
 
 /**
- * @param {string} text
+ * @param {string} password
  * @returns {Password}
  */
-export const makePassword = (text) => {
-  const encoder = makeTextEncoder(text);
-  return Object.freeze({
-    text: () => text,
-    generateKey: async (/** @type {Salt} */ salt) => {
-      const keyMaterial = await generateKeyMaterial(encoder);
-      return window.crypto.subtle.deriveKey(
-        { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
-        keyMaterial,
-        { name: ALGO_NAME, length: 256 },
-        true,
-        ['encrypt', 'decrypt'],
-      );
-    },
-  });
+export const makePassword = (password) => {
+  const text = () => password;
+  const encoder = makeTextEncoder(password);
+  const generateKey = async (/** @type {Salt} */ salt) => {
+    const keyMaterial = await generateKeyMaterial(encoder);
+    return window.crypto.subtle.deriveKey(
+      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: ALGO_NAME, length: 256 },
+      true,
+      ['encrypt', 'decrypt'],
+    );
+  };
+  return Object.freeze({ text, generateKey });
 };
 
 /**
- * @param {string} text
+ * @param {string} plaintext
  * @returns {Plaintext}
  */
-export const makePlaintext = (text) => {
-  const encoder = makeTextEncoder(text);
-  return Object.freeze({
-    ...encoder,
-    text: () => text,
-  });
+export const makePlaintext = (plaintext) => {
+  const encoder = makeTextEncoder(plaintext);
+  const text = () => plaintext;
+  return Object.freeze({ ...encoder, text });
 };
 
 /**
