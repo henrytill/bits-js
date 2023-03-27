@@ -1,3 +1,5 @@
+/coverage/
 .eslintrc.js
 .prettierrc.js
+server.mjs
 web-test-runner.config.mjs

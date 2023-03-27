@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 module.exports = {
   root: true,
   env: {
@@ -13,7 +12,5 @@ module.exports = {
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
   },
-  globals: {
-    chai: 'readonly',
-  },
+  globals: {},
 };
