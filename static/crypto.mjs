@@ -4,8 +4,6 @@ import { makeLazy } from './prelude.mjs';
 
 /**
  * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
- * @typedef {ArrayBuffer | TypedArray | DataView} Salt
- * @typedef {ArrayBuffer | TypedArray | DataView} InitVec
  *
  * @typedef {{ encode: () => Uint8Array }} HasEncode
  *
@@ -14,7 +12,7 @@ import { makeLazy } from './prelude.mjs';
  * @typedef {{ text: () => string }} HasText
  *
  * @typedef {HasText & {
- *   generateKey: (salt: Salt) => Promise<CryptoKey>
+ *   generateKey: (salt: Uint8Array) => Promise<CryptoKey>
  * }} Password
  *
  * @typedef {HasText & HasEncode} Plaintext
@@ -58,7 +56,7 @@ const generateKeyMaterial = (password) => {
 export const makePassword = (password) => {
   const text = () => password;
   const encoder = makeTextEncoder(password);
-  const generateKey = async (/** @type {Salt} */ salt) => {
+  const generateKey = async (/** @type {Uint8Array} */ salt) => {
     const keyMaterial = await generateKeyMaterial(encoder);
     return window.crypto.subtle.deriveKey(
       { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
@@ -82,12 +80,20 @@ export const makePlaintext = (plaintext) => {
 };
 
 /**
+ * @param {BufferSource} buffer
+ * @returns {string}
+ */
+const makeStringFromBytes = (buffer) => {
+  const decoder = new TextDecoder();
+  return decoder.decode(buffer);
+};
+
+/**
  * @param {ArrayBuffer} buffer
  * @returns {Plaintext}
  */
 const makePlaintextFromBytes = (buffer) => {
-  const decoder = new TextDecoder();
-  return makePlaintext(decoder.decode(buffer));
+  return makePlaintext(makeStringFromBytes(buffer));
 };
 
 /**
@@ -100,12 +106,86 @@ const makeCiphertext = (buffer) => {
   });
 };
 
-export const makeSalt = () => {
-  return window.crypto.getRandomValues(new Uint8Array(16));
+/**
+ * @param {number} length
+ * @returns {Uint8Array}
+ */
+const makeRandomBytes = (length) => {
+  return window.crypto.getRandomValues(new Uint8Array(length));
 };
 
-export const makeIV = () => {
-  return window.crypto.getRandomValues(new Uint8Array(12));
+export const makeSalt = () => makeRandomBytes(16);
+export const makeInitVec = () => makeRandomBytes(12);
+
+export const makeKey = async () => {
+  /** @type {HmacKeyGenParams} */
+  const hmacParams = { name: 'HMAC', hash: { name: 'SHA-256' } };
+  /** @type {KeyUsage[]} */
+  const keyUsages = ['sign', 'verify'];
+  const storageFormat = 'jwk';
+  const storageKey = 'key';
+  let key;
+  let item = localStorage.getItem(storageKey);
+  if (!item) {
+    key = await window.crypto.subtle.generateKey(hmacParams, true, keyUsages);
+    const exported = await window.crypto.subtle.exportKey(storageFormat, key);
+    localStorage.setItem(storageKey, JSON.stringify(exported));
+  } else {
+    const imported = JSON.parse(item);
+    key = await window.crypto.subtle.importKey(
+      storageFormat,
+      imported,
+      hmacParams,
+      true,
+      keyUsages,
+    );
+  }
+  return key;
+};
+
+/**
+ * @type {Object} SaltState
+ * @property {string} salt
+ * @property {string} signature
+ */
+
+/**
+ * @type {Object} InitVecState
+ * @property {string} initVec
+ * @property {string} signature
+ */
+
+/**
+ * @type {Object} State
+ * @property {SaltState} salt
+ * @property {InitVecState} initVec
+ */
+
+/**
+ * @typedef {{ verify: (key: CryptoKey) => Promise<boolean> }} HasVerify
+ * @typedef {HasVerify & { salt: () => Uint8Array }} HasSalt
+ * @typedef {HasVerify & { iv: () => Uint8Array }} HasInitVec
+ * @typedef {HasSalt & HasInitVec} HasState
+ */
+
+export const makeState = () => {
+  /** @type {(salt?: Uint8Array) => string} */
+  const makeSaltString = (salt = makeSalt()) => {
+    return makeStringFromBytes(salt);
+  };
+  /** @type {(iv?: Uint8Array) => string} */
+  const makeIVString = (iv = makeInitVec()) => {
+    return makeStringFromBytes(iv);
+  };
+  if (!window.localStorage.salt) {
+    window.localStorage.salt = makeSaltString();
+  }
+  if (!window.localStorage.iv) {
+    window.localStorage.iv = makeIVString();
+  }
+  const saltEncoder = makeTextEncoder(window.localStorage.salt);
+  const ivEncoder = makeTextEncoder(window.localStorage.iv);
+  return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
 };
 
 /**
@@ -113,15 +193,15 @@ export const makeIV = () => {
  *
  * @param {Password} password
  * @param {HasEncode} plaintext
- * @param {Salt} salt
- * @param {InitVec} iv
- * @returns {Promise<{ ciphertext: Ciphertext, salt: Salt, iv: InitVec }>}
+ * @param {Uint8Array} salt
+ * @param {Uint8Array} iv
+ * @returns {Promise<{ ciphertext: Ciphertext, salt: Uint8Array, iv: Uint8Array }>}
  */
 export const encrypt = async (
   password,
   plaintext,
   salt = makeSalt(),
-  iv = makeIV(),
+  iv = makeInitVec(),
 ) => {
   const key = await password.generateKey(salt);
   const buffer = await window.crypto.subtle.encrypt(
@@ -138,8 +218,8 @@ export const encrypt = async (
  *
  * @param {Password} password
  * @param {HasBuffer} ciphertext
- * @param {Salt} salt
- * @param {InitVec} iv
+ * @param {Uint8Array} salt
+ * @param {Uint8Array} iv
  * @returns {Promise<Plaintext>}
  */
 export const decrypt = async (password, ciphertext, salt, iv) => {
