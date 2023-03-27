@@ -1,2 +1,3 @@
 .eslintrc.js
+.prettierrc.js
 web-test-runner.config.mjs
