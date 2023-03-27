@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true, // needed for @esm-bundle/chai* packages
     "checkJs": true,
     "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
     "target": "ES2021",
-    "types": ["mocha", "chai"]
+    "types": ["mocha", "chai", "chai-as-promised"]
   },
-  "include": ["static/**/*", "test/**/*"]
+  "include": ["static/**/*", "test/**/*", "types/**/*"]
 }
