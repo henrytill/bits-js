@@ -1,3 +1,5 @@
+// @ts-check
+
 import { expect } from '@esm-bundle/chai';
 import { match } from '../static/prelude.mjs';
 
