@@ -14,7 +14,7 @@ import { match } from '../static/prelude.mjs';
  * @typedef {Circle | Rectangle | Triangle} Shape
  */
 
-describe('match()', () => {
+describe('match()', function () {
   /** @type {Shape[]} */
   const shapes = [
     { tag: 'circle', radius: 5 },
@@ -29,17 +29,17 @@ describe('match()', () => {
     _: () => 0,
   });
 
-  it('should correctly apply patterns based on the tag property', () => {
+  it('should correctly apply patterns based on the tag property', function () {
     expect(area(shapes[0])).to.equal((Math.PI * 5) ** 2);
     expect(area(shapes[1])).to.equal(10 * 20);
     expect(area(shapes[2])).to.equal((5 * 10) / 2);
   });
 
-  it('should apply the default pattern when no matching tag is found', () => {
+  it('should apply the default pattern when no matching tag is found', function () {
     expect(area({ tag: 'unknown' })).to.equal(0);
   });
 
-  it('should throw an error if no matching pattern and no default pattern are provided', () => {
+  it('should throw an error if no matching pattern and no default pattern are provided', function () {
     const shapes = [
       { tag: 'circle', radius: 5 },
       { tag: 'unknown', width: 10, height: 20 },

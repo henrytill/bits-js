@@ -20,13 +20,13 @@ const SHOULD_CONSTRUCT =
 
 const text = 'A moving stream of information';
 
-describe('makePassword()', () => {
-  it(SHOULD_CONSTRUCT, () => {
+describe('makePassword()', function () {
+  it(SHOULD_CONSTRUCT, function () {
     const password = makePassword(text);
     expect(text).to.equal(password.text());
   });
 
-  it('should deterministically create keys', async () => {
+  it('should deterministically create keys', async function () {
     const a = makePassword('abc123');
     const b = makePassword('abc123');
     const salt = makeSalt();
@@ -36,15 +36,15 @@ describe('makePassword()', () => {
   });
 });
 
-describe('makePlaintext()', () => {
-  it(SHOULD_CONSTRUCT, () => {
+describe('makePlaintext()', function () {
+  it(SHOULD_CONSTRUCT, function () {
     const plaintext = makePlaintext(text);
     expect(text).to.equal(plaintext.text());
   });
 });
 
-describe('encrypt()', () => {
-  it('should round-trip', async () => {
+describe('encrypt()', function () {
+  it('should round-trip', async function () {
     const expected = makePlaintext(text);
     const password = makePassword('abc123');
     const { ciphertext, salt, iv } = await encrypt(password, expected);
@@ -52,7 +52,7 @@ describe('encrypt()', () => {
     expect(expected.text()).to.equal(actual.text());
   });
 
-  it('should decrypt with a duplicate password', async () => {
+  it('should decrypt with a duplicate password', async function () {
     const expected = makePlaintext(text);
     const passwordEncrypt = makePassword('abc123');
     const { ciphertext, salt, iv } = await encrypt(passwordEncrypt, expected);
