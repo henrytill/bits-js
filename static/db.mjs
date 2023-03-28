@@ -59,7 +59,7 @@ export const OpenDatabaseResultTag = {
  *
  * @param {DatabaseName} dbName
  * @param {DatabaseVersion} dbVersion
- * @param {DatabaseModifier} objectStoreCreator
+ * @param {ObjectStoreCreator} objectStoreCreator
  * @returns {Promise<OpenDatabaseResult>}
  */
 export const openDatabase = (dbName, dbVersion, objectStoreCreator) => {
@@ -72,17 +72,13 @@ export const openDatabase = (dbName, dbVersion, objectStoreCreator) => {
         return reject(openRequest.error);
       };
       openRequest.onsuccess = (_) => {
-        return resolve({
-          tag: OpenDatabaseResultTag.SUCCESS,
-          db: openRequest.result,
-        });
+        const db = openRequest.result;
+        return resolve({ tag: OpenDatabaseResultTag.SUCCESS, db });
       };
       openRequest.onupgradeneeded = (_) => {
         try {
-          return resolve({
-            tag: OpenDatabaseResultTag.UPGRADE_NEEDED,
-            db: objectStoreCreator(openRequest.result),
-          });
+          const db = objectStoreCreator(openRequest.result);
+          return resolve({ tag: OpenDatabaseResultTag.UPGRADE_NEEDED, db });
         } catch (error) {
           if (openRequest.result) {
             openRequest.result.close();
