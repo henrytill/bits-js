@@ -44,7 +44,7 @@ export const ResultTag = {
  *
  * @typedef {Object} RequestResult
  * @property {ResultTag} tag
- * @property {Object} [value]
+ * @property {Object | null} value
  */
 
 /**
@@ -71,13 +71,13 @@ export const makePowerbox = () => {
   const request = (callerId, capId) => {
     const caller = callers.find((c) => c.id === callerId);
     if (!caller) {
-      return { tag: ResultTag.UnknownCaller };
+      return { tag: ResultTag.UnknownCaller, value: null };
     } else if (!caller.caps[capId]) {
-      return { tag: ResultTag.UnavailableCapability };
+      return { tag: ResultTag.UnavailableCapability, value: null };
     }
     const cap = caller.caps[capId];
     if (cap.isRevoked) {
-      return { tag: ResultTag.RevokedCapability };
+      return { tag: ResultTag.RevokedCapability, value: cap.proxy };
     } else {
       return { tag: ResultTag.Ok, value: cap.proxy };
     }
