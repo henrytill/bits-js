@@ -117,7 +117,38 @@ const makeRandomBytes = (length) => {
 export const makeSalt = () => makeRandomBytes(16);
 export const makeInitVec = () => makeRandomBytes(12);
 
-export const makeKey = async () => {
+/**
+ * @typedef {{
+ *   generateKey: (algorithm: HmacKeyGenParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>
+ * }} HasGenerateKey
+ *
+ * @typedef {{
+ *   importKey: (format: "jwk", keyData: JsonWebKey, algorithm: HmacImportParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>
+ * }} HasImportKey
+ *
+ * @typedef {{
+ *   exportKey: (format: "jwk", key: CryptoKey) => Promise<JsonWebKey>
+ * }} HasExportKey
+ *
+ * @typedef {HasGenerateKey & HasImportKey & HasExportKey} HasCrypto
+ *
+ * @typedef {{ getItem: (key: string) => string | null }} HasGetItem
+ * @typedef {{ setItem: (key: string, value: string) => void }} HasSetItem
+ * @typedef {HasGetItem & HasSetItem} HasStorage
+ */
+
+/** @type {(subtle: HasCrypto, storage: HasStorage) => Promise<CryptoKey>} */
+export const makeKey = async (
+  subtle = {
+    generateKey: window.crypto.subtle.generateKey,
+    importKey: window.crypto.subtle.importKey,
+    exportKey: window.crypto.subtle.exportKey,
+  },
+  storage = {
+    getItem: localStorage.getItem,
+    setItem: localStorage.setItem,
+  },
+) => {
   /** @type {HmacKeyGenParams} */
   const hmacParams = { name: 'HMAC', hash: { name: 'SHA-256' } };
   /** @type {KeyUsage[]} */
@@ -125,14 +156,14 @@ export const makeKey = async () => {
   const storageFormat = 'jwk';
   const storageKey = 'key';
   let key;
-  let item = localStorage.getItem(storageKey);
+  let item = storage.getItem(storageKey);
   if (!item) {
-    key = await window.crypto.subtle.generateKey(hmacParams, true, keyUsages);
-    const exported = await window.crypto.subtle.exportKey(storageFormat, key);
-    localStorage.setItem(storageKey, JSON.stringify(exported));
+    key = await subtle.generateKey(hmacParams, true, keyUsages);
+    const exported = await subtle.exportKey(storageFormat, key);
+    storage.setItem(storageKey, JSON.stringify(exported));
   } else {
     const imported = JSON.parse(item);
-    key = await window.crypto.subtle.importKey(
+    key = await subtle.importKey(
       storageFormat,
       imported,
       hmacParams,
