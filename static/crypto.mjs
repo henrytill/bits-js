@@ -257,3 +257,33 @@ export const decrypt = async (password, ciphertext, salt, iv) => {
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
     .then(makePlaintextFromBytes);
 };
+
+/**
+ * @typedef {Object} UUID
+ * @property {() => string} get
+ */
+
+/**
+ * @typedef {Object} UUIDGenerator
+ * @property {() => UUID} generate
+ */
+
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
+ * @typedef {() => `${string}-${string}-${string}-${string}-${string}`} UUIDGeneratorImpl
+ */
+
+/**
+ * Creates a UUID generator.
+ * @param {UUIDGeneratorImpl} impl
+ * @returns {Readonly<UUIDGenerator>}
+ */
+export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
+  /** @type {() => Readonly<UUID>} */
+  const generate = () => {
+    const uuid = impl();
+    const get = () => uuid;
+    return Object.freeze({ get });
+  };
+  return Object.freeze({ generate });
+};
