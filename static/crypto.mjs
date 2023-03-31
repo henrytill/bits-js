@@ -11,9 +11,7 @@ import { makeLazy } from './prelude.mjs';
  *
  * @typedef {{ text: () => string }} HasText
  *
- * @typedef {HasText & {
- *   generateKey: (salt: Uint8Array) => Promise<CryptoKey>
- * }} Password
+ * @typedef {HasText & { generateKey: (salt: Uint8Array) => Promise<CryptoKey> }} Password
  *
  * @typedef {HasText & HasEncode} Plaintext
  *
