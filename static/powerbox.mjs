@@ -72,11 +72,11 @@ export const makePowerbox = () => {
     const caller = callers.find((c) => c.id === callerId);
     if (!caller) {
       return { tag: ResultTag.UnknownCaller, value: null };
-    } else if (!caller.caps[capId]) {
-      return { tag: ResultTag.UnavailableCapability, value: null };
     }
     const cap = caller.caps[capId];
-    if (cap.isRevoked) {
+    if (!cap) {
+      return { tag: ResultTag.UnavailableCapability, value: null };
+    } else if (cap.isRevoked) {
       return { tag: ResultTag.RevokedCapability, value: cap.proxy };
     } else {
       return { tag: ResultTag.Ok, value: cap.proxy };
@@ -89,19 +89,19 @@ export const makePowerbox = () => {
    * @param {Object} object
    */
   const grant = (callerId, capId, object) => {
-    const callerIndex = callers.findIndex((c) => c.id === callerId);
     const proxy = Proxy.revocable(object, {
       get: Reflect.get,
       apply: Reflect.apply,
     });
     const cap = { ...proxy, isRevoked: false };
-    if (callerIndex === -1) {
+    const caller = callers.find((c) => c.id === callerId);
+    if (!caller) {
       callers.push({
         id: callerId,
         caps: { [capId]: cap },
       });
     } else {
-      callers[callerIndex].caps[capId] = cap;
+      caller.caps[capId] = cap;
     }
   };
 
@@ -111,11 +111,11 @@ export const makePowerbox = () => {
    * @returns {RevokeResult}
    */
   const revoke = (callerId, capId) => {
-    const callerIndex = callers.findIndex((c) => c.id === callerId);
-    if (callerIndex === -1) {
+    const caller = callers.find((c) => c.id === callerId);
+    if (!caller) {
       return { tag: ResultTag.UnknownCaller };
     }
-    const cap = callers[callerIndex].caps[capId];
+    const cap = caller.caps[capId];
     if (!cap) {
       return { tag: ResultTag.UnavailableCapability };
     } else if (cap.isRevoked) {
