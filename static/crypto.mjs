@@ -40,7 +40,7 @@ const makeTextEncoder = (text) => {
  * @returns {Promise<CryptoKey>}
  */
 const generateKeyMaterial = (password) => {
-  return window.crypto.subtle.importKey(
+  return crypto.subtle.importKey(
     'raw',
     password.encode(),
     { name: KEY_DERIVATION_FN },
@@ -58,7 +58,7 @@ export const makePassword = (password) => {
   const encoder = makeTextEncoder(password);
   const generateKey = async (/** @type {Uint8Array} */ salt) => {
     const keyMaterial = await generateKeyMaterial(encoder);
-    return window.crypto.subtle.deriveKey(
+    return crypto.subtle.deriveKey(
       { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
       keyMaterial,
       { name: ALGO_NAME, length: 256 },
@@ -111,7 +111,7 @@ const makeCiphertext = (buffer) => {
  * @returns {Uint8Array}
  */
 const makeRandomBytes = (length) => {
-  return window.crypto.getRandomValues(new Uint8Array(length));
+  return crypto.getRandomValues(new Uint8Array(length));
 };
 
 export const makeSalt = () => makeRandomBytes(16);
@@ -140,13 +140,13 @@ export const makeInitVec = () => makeRandomBytes(12);
 /** @type {(subtle: HasCrypto, storage: HasStorage) => Promise<CryptoKey>} */
 export const makeKey = async (
   subtle = {
-    generateKey: window.crypto.subtle.generateKey,
-    importKey: window.crypto.subtle.importKey,
-    exportKey: window.crypto.subtle.exportKey,
+    generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
+    importKey: crypto.subtle.importKey.bind(crypto.subtle),
+    exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
   },
   storage = {
-    getItem: localStorage.getItem,
-    setItem: localStorage.setItem,
+    getItem: localStorage.getItem.bind(localStorage),
+    setItem: localStorage.setItem.bind(localStorage),
   },
 ) => {
   /** @type {HmacKeyGenParams} */
@@ -208,14 +208,14 @@ export const makeState = () => {
   const makeIVString = (iv = makeInitVec()) => {
     return makeStringFromBytes(iv);
   };
-  if (!window.localStorage.salt) {
-    window.localStorage.salt = makeSaltString();
+  if (!localStorage.salt) {
+    localStorage.salt = makeSaltString();
   }
-  if (!window.localStorage.iv) {
-    window.localStorage.iv = makeIVString();
+  if (!localStorage.iv) {
+    localStorage.iv = makeIVString();
   }
-  const saltEncoder = makeTextEncoder(window.localStorage.salt);
-  const ivEncoder = makeTextEncoder(window.localStorage.iv);
+  const saltEncoder = makeTextEncoder(localStorage.salt);
+  const ivEncoder = makeTextEncoder(localStorage.iv);
   return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
 };
 
@@ -235,7 +235,7 @@ export const encrypt = async (
   iv = makeInitVec(),
 ) => {
   const key = await password.generateKey(salt);
-  const buffer = await window.crypto.subtle.encrypt(
+  const buffer = await crypto.subtle.encrypt(
     { name: ALGO_NAME, iv },
     key,
     plaintext.encode(),
@@ -255,7 +255,7 @@ export const encrypt = async (
  */
 export const decrypt = async (password, ciphertext, salt, iv) => {
   const key = await password.generateKey(salt);
-  return window.crypto.subtle
+  return crypto.subtle
     .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
     .then(makePlaintextFromBytes);
 };
