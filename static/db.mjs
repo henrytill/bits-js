@@ -19,6 +19,11 @@
  */
 
 /**
+ * @typedef {{ open: (name: string, version?: number) => IDBOpenDBRequest }} HasOpen
+ * @typedef {{ deleteDatabase: (name: string) => IDBOpenDBRequest }} HasDeleteDatabase
+ */
+
+/**
  * @param {ObjectStoreName} objectStoreName
  * @param {IDBObjectStoreParameters} objectStoreParameters
  * @param {Index[]} indices
@@ -55,19 +60,20 @@ export const OpenDatabaseResultTag = {
  */
 
 /**
- * An async wrapper for window.indexedDB.open
+ * An async wrapper for indexedDB.open
  *
+ * @param {HasOpen} db
  * @param {DatabaseName} dbName
  * @param {DatabaseVersion} dbVersion
  * @param {ObjectStoreCreator} objectStoreCreator
  * @returns {Promise<OpenDatabaseResult>}
  */
-export const openDatabase = (dbName, dbVersion, objectStoreCreator) => {
+export const openDatabase = (db, dbName, dbVersion, objectStoreCreator) => {
   return new Promise((resolve, reject) => {
     /** @type {IDBOpenDBRequest} */
     let openRequest;
     try {
-      openRequest = window.indexedDB.open(dbName, dbVersion);
+      openRequest = db.open(dbName, dbVersion);
       openRequest.onerror = (_) => {
         return reject(openRequest.error);
       };
@@ -104,14 +110,15 @@ export const DeleteDatabaseResultTag = {
  */
 
 /**
- * An async wrapper for window.indexedDB.deleteDatabase
+ * An async wrapper for indexedDB.deleteDatabase
  *
+ * @param {HasDeleteDatabase} db
  * @param {DatabaseName} dbName
  * @returns {Promise<DeleteDatabaseResult>}
  */
-export const deleteDatabase = (dbName) => {
+export const deleteDatabase = (db, dbName) => {
   return new Promise((resolve, reject) => {
-    const deleteRequest = window.indexedDB.deleteDatabase(dbName);
+    const deleteRequest = db.deleteDatabase(dbName);
     deleteRequest.onerror = (_) => {
       return reject(deleteRequest.error); // is it even possible to hit this?
     };

@@ -41,7 +41,7 @@ describe('openDatabase()', function () {
    * @returns {Promise<void>}
    */
   async function deleteDatabase(dbName) {
-    let { tag } = await db.deleteDatabase(dbName);
+    let { tag } = await db.deleteDatabase(indexedDB, dbName);
     switch (tag) {
       case db.DeleteDatabaseResultTag.Success:
         break;
@@ -62,7 +62,12 @@ describe('openDatabase()', function () {
     let result;
 
     before(function () {
-      promise = db.openDatabase(dbName, dbVersion, objectStoreCreator);
+      promise = db.openDatabase(
+        indexedDB,
+        dbName,
+        dbVersion,
+        objectStoreCreator,
+      );
     });
 
     after(function () {
@@ -98,7 +103,12 @@ describe('openDatabase()', function () {
     let result;
 
     before(function () {
-      promise = db.openDatabase(dbName, dbVersion, objectStoreCreator);
+      promise = db.openDatabase(
+        indexedDB,
+        dbName,
+        dbVersion,
+        objectStoreCreator,
+      );
     });
 
     after(function () {
@@ -129,7 +139,7 @@ describe('openDatabase()', function () {
     let result;
 
     before(function () {
-      promise = db.openDatabase(dbName, 0, objectStoreCreator);
+      promise = db.openDatabase(indexedDB, dbName, 0, objectStoreCreator);
     });
 
     after(function () {
@@ -156,7 +166,7 @@ describe('openDatabase()', function () {
 
     before(async function () {
       await deleteDatabase(dbName);
-      promise = db.openDatabase(dbName, dbVersion, (db) => db);
+      promise = db.openDatabase(indexedDB, dbName, dbVersion, (db) => db);
     });
 
     after(function () {
@@ -195,7 +205,7 @@ describe('openDatabase()', function () {
 
     before(async function () {
       await deleteDatabase(dbName);
-      promise = db.openDatabase(dbName, dbVersion, (db) => {
+      promise = db.openDatabase(indexedDB, dbName, dbVersion, (db) => {
         db.createObjectStore(objectStoreName, invalidObjectStoreParameters);
         return db;
       });
@@ -246,6 +256,7 @@ describe('deleteDatabase', function () {
 
   beforeEach(async function () {
     ({ db: database } = await db.openDatabase(
+      indexedDB,
       dbName,
       dbVersion,
       objectStoreCreator,
@@ -253,21 +264,21 @@ describe('deleteDatabase', function () {
   });
 
   it('should return a Promise', async function () {
-    const promise = db.deleteDatabase(dbName);
+    const promise = db.deleteDatabase(indexedDB, dbName);
     expect(promise).to.be.an.instanceof(Promise);
     database.close();
     await promise;
   });
 
   it('should resolve to blocked before database is closed', async function () {
-    const result = await db.deleteDatabase(dbName);
+    const result = await db.deleteDatabase(indexedDB, dbName);
     expect(result.tag).to.equal(db.DeleteDatabaseResultTag.Blocked);
     database.close();
   });
 
   it('should resolve to success after database is closed', async function () {
     database.close();
-    const result = await db.deleteDatabase(dbName);
+    const result = await db.deleteDatabase(indexedDB, dbName);
     expect(result.tag).to.equal(db.DeleteDatabaseResultTag.Success);
   });
 });
