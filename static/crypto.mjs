@@ -202,25 +202,27 @@ export const makeKey = async (
  * @typedef {HasSalt & HasInitVec} HasState
  */
 
-export const makeState = () => {
-  /** @type {(salt?: Uint8Array) => string} */
-  const makeSaltString = (salt = makeSalt()) => {
-    return makeStringFromBytes(salt);
-  };
-  /** @type {(iv?: Uint8Array) => string} */
-  const makeIVString = (iv = makeInitVec()) => {
-    return makeStringFromBytes(iv);
-  };
-  if (!localStorage.salt) {
-    localStorage.salt = makeSaltString();
-  }
-  if (!localStorage.iv) {
-    localStorage.iv = makeIVString();
-  }
-  const saltEncoder = makeTextEncoder(localStorage.salt);
-  const ivEncoder = makeTextEncoder(localStorage.iv);
-  return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
-};
+// Sketch of a state object
+//
+// export const makeState = () => {
+//   /** @type {(salt?: Uint8Array) => string} */
+//   const makeSaltString = (salt = makeSalt()) => {
+//     return makeStringFromBytes(salt);
+//   };
+//   /** @type {(iv?: Uint8Array) => string} */
+//   const makeIVString = (iv = makeInitVec()) => {
+//     return makeStringFromBytes(iv);
+//   };
+//   if (!localStorage.salt) {
+//     localStorage.salt = makeSaltString();
+//   }
+//   if (!localStorage.iv) {
+//     localStorage.iv = makeIVString();
+//   }
+//   const saltEncoder = makeTextEncoder(localStorage.salt);
+//   const ivEncoder = makeTextEncoder(localStorage.iv);
+//   return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
+// };
 
 /**
  * Encrypts a Plaintext
