@@ -6,6 +6,7 @@ import {
   makePassword,
   makePlaintext,
   makeSalt,
+  makeUUIDGenerator,
   encrypt,
   decrypt,
 } from '../static/crypto.mjs';
@@ -90,5 +91,64 @@ describe('makeKey()', function () {
 
   after(function () {
     localStorage.removeItem(storageKey);
+  });
+});
+
+describe('makeUUIDGenerator()', function () {
+  /** @type {import('../static/crypto.mjs').UUIDGenerator} */
+  let generator;
+
+  it('should generate a UUIDGenerator', function () {
+    generator = makeUUIDGenerator();
+    expect(generator).to.be.an.instanceOf(Object);
+    expect(generator.generate).to.be.an.instanceOf(Function);
+  });
+});
+
+describe('UUIDGenerator', function () {
+  describe('#generate()', function () {
+    /** @type {import('../static/crypto.mjs').UUIDGenerator} */
+    let generator;
+
+    /** @type {import('../static/crypto.mjs').UUID} */
+    let uuid;
+
+    before(function () {
+      generator = makeUUIDGenerator();
+    });
+
+    it('should generate a UUID', function () {
+      uuid = generator.generate();
+      expect(uuid).to.be.an.instanceOf(Object);
+      expect(uuid.get).to.be.an.instanceOf(Function);
+      expect(uuid.get()).to.be.a('string');
+    });
+
+    it('should generate a UUID that is 36 characters long', function () {
+      expect(uuid.get()).to.have.lengthOf(36);
+    });
+
+    it('should generate a UUID that is a valid UUID', function () {
+      expect(uuid.get()).to.match(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+    });
+
+    it('should generate a UUID that is unique', function () {
+      const uuids = new Set();
+      for (let i = 0; i < 1000; i++) {
+        uuids.add(generator.generate().get());
+      }
+      expect(uuids.size).to.equal(1000);
+    });
+
+    it('should generate a UUID that is unique across multiple generators', function () {
+      const uuids = new Set();
+      for (let i = 0; i < 1000; i++) {
+        uuids.add(generator.generate().get());
+        uuids.add(makeUUIDGenerator().generate().get());
+      }
+      expect(uuids.size).to.equal(2000);
+    });
   });
 });
