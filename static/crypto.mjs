@@ -135,8 +135,14 @@ export const makeInitVec = () => makeRandomBytes(12);
  * @typedef {HasGetItem & HasSetItem} HasStorage
  */
 
-/** @type {(subtle: HasCrypto, storage: HasStorage) => Promise<CryptoKey>} */
+/**
+ * @param {string} [storageKey]
+ * @param {HasCrypto} [subtle]
+ * @param {HasStorage} [storage]
+ * @returns {Promise<CryptoKey>}
+ */
 export const makeKey = async (
+  storageKey = 'key',
   subtle = {
     generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
     importKey: crypto.subtle.importKey.bind(crypto.subtle),
@@ -152,7 +158,6 @@ export const makeKey = async (
   /** @type {KeyUsage[]} */
   const keyUsages = ['sign', 'verify'];
   const storageFormat = 'jwk';
-  const storageKey = 'key';
   let key;
   let item = storage.getItem(storageKey);
   if (!item) {

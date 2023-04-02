@@ -2,6 +2,7 @@
 
 import { expect } from '@esm-bundle/chai';
 import {
+  makeKey,
   makePassword,
   makePlaintext,
   makeSalt,
@@ -59,5 +60,35 @@ describe('encrypt()', function () {
     const passwordDecrypt = makePassword('abc123');
     const actual = await decrypt(passwordDecrypt, ciphertext, salt, iv);
     expect(expected.text()).to.equal(actual.text());
+  });
+});
+
+describe('makeKey()', function () {
+  /** @type {string} */
+  let storageKey = 'testKey';
+
+  /** @type {Promise<CryptoKey>} */
+  let promise;
+
+  /** @type {CryptoKey} */
+  let key;
+
+  it('should generate a Promise', function () {
+    promise = makeKey(storageKey);
+    expect(promise).to.be.an.instanceOf(Promise);
+  });
+
+  it('should resolve to a CryptoKey', async function () {
+    key = await promise;
+    expect(key).to.be.an.instanceOf(CryptoKey);
+  });
+
+  it('should fetch an existing key from localStorage', async function () {
+    const otherKey = await makeKey(storageKey);
+    expect(key).to.deep.equal(otherKey);
+  });
+
+  after(function () {
+    localStorage.removeItem(storageKey);
   });
 });
