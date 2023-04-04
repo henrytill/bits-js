@@ -11,12 +11,6 @@ import {
   decrypt,
 } from '../static/crypto.mjs';
 
-if (window.isSecureContext) {
-  console.log('This is a secure context.');
-} else {
-  console.warn('This is an insecure context.');
-}
-
 const SHOULD_CONSTRUCT =
   'should construct an object whose underlying text is the same as the text that was passed as an argument';
 
