@@ -2,4 +2,5 @@
 .eslintrc.js
 .prettierrc.js
 server.mjs
+web-dev-server.config.mjs
 web-test-runner.config.mjs
