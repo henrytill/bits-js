@@ -22,6 +22,9 @@ const KEY_DERIVATION_FN = 'PBKDF2';
 const ALGO_NAME = 'AES-GCM';
 
 /**
+ * Makes an object that lazily encodes a string as UTF-8 bytes.  The bytes are
+ * cached, so that subsequent calls to `encode` return the cached value.
+ *
  * @param {string} text
  * @returns {HasEncode}
  */
@@ -34,20 +37,6 @@ const makeTextEncoder = (text) => {
 };
 
 /**
- * @param {HasEncode} password
- * @returns {Promise<CryptoKey>}
- */
-const generateKeyMaterial = (password) => {
-  return crypto.subtle.importKey(
-    'raw',
-    password.encode(),
-    { name: KEY_DERIVATION_FN },
-    false,
-    ['deriveBits', 'deriveKey'],
-  );
-};
-
-/**
  * Makes a `Password` from a string.
  *
  * @param {string} password
@@ -57,7 +46,13 @@ export const makePassword = (password) => {
   const text = () => password;
   const encoder = makeTextEncoder(password);
   const generateKey = async (/** @type {Uint8Array} */ salt) => {
-    const keyMaterial = await generateKeyMaterial(encoder);
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(),
+      { name: KEY_DERIVATION_FN },
+      false,
+      ['deriveBits', 'deriveKey'],
+    );
     return crypto.subtle.deriveKey(
       { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
       keyMaterial,
