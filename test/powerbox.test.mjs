@@ -36,21 +36,21 @@ describe('Powerbox', function () {
 
     it('should return UnknownCaller if the caller has not been granted any capabilities', function () {
       const requestResult = powerbox.request(CALLER_ID, CAP_ID);
-      expect(requestResult.tag).to.equal(ResultTag.UnknownCaller);
+      expect(requestResult.tag).to.equal(ResultTag.UNKNOWN_CALLER);
       expect(requestResult.value).to.be.null;
     });
 
     it('should return UnavailableCapbility if the capability has not been granted', function () {
       powerbox.grant(CALLER_ID, 'console', console);
       const requestResult = powerbox.request(CALLER_ID, CAP_ID);
-      expect(requestResult.tag).to.equal(ResultTag.UnavailableCapability);
+      expect(requestResult.tag).to.equal(ResultTag.UNAVAILABLE_CAPABILITY);
       expect(requestResult.value).to.be.null;
     });
 
     it('should return the expected object if the capability has been granted', function () {
       powerbox.grant(CALLER_ID, CAP_ID, adder);
       const requestResult = powerbox.request(CALLER_ID, CAP_ID);
-      expect(requestResult.tag).to.equal(ResultTag.Ok);
+      expect(requestResult.tag).to.equal(ResultTag.OK);
       maybeGadder = /** @type {Adder | null} */ (requestResult.value);
       expect(maybeGadder).to.not.be.null;
       if (maybeGadder) {
@@ -60,9 +60,9 @@ describe('Powerbox', function () {
 
     it('should return RevokedCapability if the capability has been revoked', function () {
       const revokeResult = powerbox.revoke(CALLER_ID, CAP_ID);
-      expect(revokeResult.tag).to.equal(ResultTag.Ok);
+      expect(revokeResult.tag).to.equal(ResultTag.OK);
       const requestResult = powerbox.request(CALLER_ID, CAP_ID);
-      expect(requestResult.tag).to.equal(ResultTag.RevokedCapability);
+      expect(requestResult.tag).to.equal(ResultTag.REVOKED_CAPABILITY);
       maybeGadder = /** @type {Adder | null} */ (requestResult.value);
       expect(maybeGadder).to.not.be.null;
       if (maybeGadder) {
@@ -86,23 +86,23 @@ describe('Powerbox', function () {
 
     it('should return UnknownCaller if the caller has not been granted any capabilities', function () {
       const revokeResult = powerbox.revoke(CALLER_ID, CAP_ID);
-      expect(revokeResult.tag).to.equal(ResultTag.UnknownCaller);
+      expect(revokeResult.tag).to.equal(ResultTag.UNKNOWN_CALLER);
     });
 
     it('should return UnavailableCapability if the capability has not been granted', function () {
       powerbox.grant(CALLER_ID, 'console', console);
       const revokeResult = powerbox.revoke(CALLER_ID, CAP_ID);
-      expect(revokeResult.tag).to.equal(ResultTag.UnavailableCapability);
+      expect(revokeResult.tag).to.equal(ResultTag.UNAVAILABLE_CAPABILITY);
     });
 
     it('should revoke a capability', function () {
       powerbox.grant(CALLER_ID, CAP_ID, adder);
       const requestResult = powerbox.request(CALLER_ID, CAP_ID);
-      expect(requestResult.tag).to.equal(ResultTag.Ok);
+      expect(requestResult.tag).to.equal(ResultTag.OK);
       maybeGadder = /** @type {Adder | null} */ (requestResult.value);
       expect(maybeGadder).to.not.be.null;
       const revokeResult = powerbox.revoke(CALLER_ID, CAP_ID);
-      expect(revokeResult.tag).to.equal(ResultTag.Ok);
+      expect(revokeResult.tag).to.equal(ResultTag.OK);
       if (maybeGadder) {
         expect(() => /** @type {Adder} */ (maybeGadder).add(2, 2)).to.throw(
           TypeError,
@@ -112,7 +112,7 @@ describe('Powerbox', function () {
 
     it('should return RevokedCapability if the capability has been revoked', function () {
       const revokeResult = powerbox.revoke(CALLER_ID, CAP_ID);
-      expect(revokeResult.tag).to.equal(ResultTag.RevokedCapability);
+      expect(revokeResult.tag).to.equal(ResultTag.REVOKED_CAPABILITY);
     });
   });
 });

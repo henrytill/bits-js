@@ -43,9 +43,9 @@ describe('openDatabase()', function () {
   async function deleteDatabase(dbName) {
     let { tag } = await db.deleteDatabase(indexedDB, dbName);
     switch (tag) {
-      case db.DeleteDatabaseResultTag.Success:
+      case db.DeleteDatabaseResultTag.SUCCESS:
         break;
-      case db.DeleteDatabaseResultTag.Blocked:
+      case db.DeleteDatabaseResultTag.BLOCKED:
         throw new Error('Database deletion blocked');
     }
   }
@@ -82,7 +82,7 @@ describe('openDatabase()', function () {
 
     it('should resolve to need to be upgraded', async function () {
       result = await promise;
-      expect(result.tag).to.equal(db.OpenDatabaseResultTag.UpgradeNeeded);
+      expect(result.tag).to.equal(db.OpenDatabaseResultTag.UPGRADE_NEEDED);
     });
 
     it('should resolve to have a db property that is an IDBDatabase instance', function () {
@@ -123,7 +123,7 @@ describe('openDatabase()', function () {
 
     it('should resolve to not need to be upgraded', async function () {
       result = await promise;
-      expect(result.tag).to.equal(db.OpenDatabaseResultTag.Success);
+      expect(result.tag).to.equal(db.OpenDatabaseResultTag.SUCCESS);
     });
 
     it('should resolve to have a db property that is an IDBDatabase instance', function () {
@@ -181,7 +181,7 @@ describe('openDatabase()', function () {
 
     it('should resolve to need to be upgraded', async function () {
       result = await promise;
-      expect(result.tag).to.equal(db.OpenDatabaseResultTag.UpgradeNeeded);
+      expect(result.tag).to.equal(db.OpenDatabaseResultTag.UPGRADE_NEEDED);
     });
 
     it('should resolve to not have an underlying object store', function () {
@@ -272,13 +272,13 @@ describe('deleteDatabase', function () {
 
   it('should resolve to blocked before database is closed', async function () {
     const result = await db.deleteDatabase(indexedDB, dbName);
-    expect(result.tag).to.equal(db.DeleteDatabaseResultTag.Blocked);
+    expect(result.tag).to.equal(db.DeleteDatabaseResultTag.BLOCKED);
     database.close();
   });
 
   it('should resolve to success after database is closed', async function () {
     database.close();
     const result = await db.deleteDatabase(indexedDB, dbName);
-    expect(result.tag).to.equal(db.DeleteDatabaseResultTag.Success);
+    expect(result.tag).to.equal(db.DeleteDatabaseResultTag.SUCCESS);
   });
 });

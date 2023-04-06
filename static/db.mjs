@@ -55,8 +55,8 @@ export const makeObjectStoreCreator = (
 
 /** @enum {number} */
 export const OpenDatabaseResultTag = {
-  Success: 0,
-  UpgradeNeeded: 1,
+  SUCCESS: 0,
+  UPGRADE_NEEDED: 1,
 };
 
 /**
@@ -85,12 +85,12 @@ export const openDatabase = (db, dbName, dbVersion, objectStoreCreator) => {
       };
       openRequest.onsuccess = (_) => {
         const db = openRequest.result;
-        return resolve({ tag: OpenDatabaseResultTag.Success, db });
+        return resolve({ tag: OpenDatabaseResultTag.SUCCESS, db });
       };
       openRequest.onupgradeneeded = (_) => {
         try {
           const db = objectStoreCreator(openRequest.result);
-          return resolve({ tag: OpenDatabaseResultTag.UpgradeNeeded, db });
+          return resolve({ tag: OpenDatabaseResultTag.UPGRADE_NEEDED, db });
         } catch (error) {
           if (openRequest.result) {
             openRequest.result.close();
@@ -106,8 +106,8 @@ export const openDatabase = (db, dbName, dbVersion, objectStoreCreator) => {
 
 /** @enum {number} */
 export const DeleteDatabaseResultTag = {
-  Success: 0,
-  Blocked: 1,
+  SUCCESS: 0,
+  BLOCKED: 1,
 };
 
 /**
@@ -129,10 +129,10 @@ export const deleteDatabase = (db, dbName) => {
       return reject(deleteRequest.error); // is it even possible to hit this?
     };
     deleteRequest.onsuccess = (_) => {
-      return resolve({ tag: DeleteDatabaseResultTag.Success });
+      return resolve({ tag: DeleteDatabaseResultTag.SUCCESS });
     };
     deleteRequest.onblocked = (_) => {
-      return resolve({ tag: DeleteDatabaseResultTag.Blocked });
+      return resolve({ tag: DeleteDatabaseResultTag.BLOCKED });
     };
   });
 };
