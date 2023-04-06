@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * A Powerbox is a mechanism for granting and revoking capabilities to callers.
+ * A `Powerbox` is a mechanism for granting and revoking capabilities to callers.
  *
  * @typedef {Object} Powerbox
  * @property {(callerId: string, capId: string) => RequestResult} request - Requests a capability from the powerbox.
@@ -10,7 +10,7 @@
  */
 
 /**
- * An Object returned by Proxy.revocable
+ * An `Object` returned by `Proxy.revocable`.
  *
  * @typedef {Object} RevocableProxy
  * @property {Object} proxy
@@ -18,13 +18,13 @@
  */
 
 /**
- * A RevocableProxy that is enriched with a boolean flag indicating whether it has been revoked.
+ * A `RevocableProxy` that is enriched with a boolean flag indicating whether it has been revoked.
  *
  * @typedef {RevocableProxy & { isRevoked: boolean}} Capability
  */
 
 /**
- * Represents a caller of a Powerbox. A caller has a unique ID and a set of capabilities.
+ * Represents a caller of a `Powerbox`. A caller has a unique ID and a set of capabilities.
  *
  * @typedef {Object} Caller
  * @property {string} id - The ID of the caller.
@@ -55,7 +55,7 @@ export const ResultTag = {
  */
 
 /**
- * Makes a Powerbox
+ * Makes a `Powerbox`.
  *
  * @type {() => Readonly<Powerbox>}
  */

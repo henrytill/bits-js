@@ -29,7 +29,7 @@ describe('openDatabase()', function () {
     { name: 'age', keyPath: 'age', indexParameters: { unique: false } },
   ];
 
-  /** @type {import('../static/db.mjs').ObjectStoreCreator} */
+  /** @type {import('../static/db.mjs').DatabaseModifier} */
   const objectStoreCreator = db.makeObjectStoreCreator(
     objectStoreName,
     objectStoreParameters,
@@ -244,7 +244,7 @@ describe('deleteDatabase', function () {
     { name: 'age', keyPath: 'age', indexParameters: { unique: false } },
   ];
 
-  /** @type {import('../static/db.mjs').ObjectStoreCreator} */
+  /** @type {import('../static/db.mjs').DatabaseModifier} */
   const objectStoreCreator = db.makeObjectStoreCreator(
     objectStoreName,
     objectStoreParameters,

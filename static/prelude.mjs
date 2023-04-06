@@ -1,10 +1,13 @@
 // @ts-check
 
 /**
+ * Creates a thunk that returns the result of `render(value)`.  The result is
+ * cached, so that subsequent calls to the thunk return the cached value.
+ *
  * @template T, U
- * @param {T} value
- * @param {(value: T) => U} render
- * @returns {() => U}
+ * @param {T} value - The value to be passed to `render`.
+ * @param {(value: T) => U} render - The function to be called with `value`.
+ * @returns {() => U} A thunk that returns the result of `render(value)`.
  */
 export const makeLazy = (value, render) => {
   let rendered = false;

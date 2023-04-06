@@ -7,6 +7,8 @@
  */
 
 /**
+ * Arguments to `IDBObjectStore.createIndex`.
+ *
  * @typedef {object} Index
  * @property {string} name
  * @property {string | string[] } keyPath
@@ -14,8 +16,9 @@
  */
 
 /**
+ * Modifies a database.  Intended to be used with `openDatabase`.
+ *
  * @typedef {(db: IDBDatabase) => IDBDatabase} DatabaseModifier
- * @typedef {DatabaseModifier} ObjectStoreCreator
  */
 
 /**
@@ -24,10 +27,13 @@
  */
 
 /**
+ * Returns a `DatabaseModifier` that is used to create an object store with the
+ * given name, parameters, and indices.  Intended to be used with `openDatabase`.
+ *
  * @param {ObjectStoreName} objectStoreName
  * @param {IDBObjectStoreParameters} objectStoreParameters
  * @param {Index[]} indices
- * @returns {ObjectStoreCreator}
+ * @returns {DatabaseModifier}
  * @throws {DOMException}
  */
 export const makeObjectStoreCreator = (
@@ -60,12 +66,12 @@ export const OpenDatabaseResultTag = {
  */
 
 /**
- * An async wrapper for indexedDB.open
+ * An async wrapper for `indexedDB.open`.
  *
  * @param {HasOpen} db
  * @param {DatabaseName} dbName
  * @param {DatabaseVersion} dbVersion
- * @param {ObjectStoreCreator} objectStoreCreator
+ * @param {DatabaseModifier} objectStoreCreator
  * @returns {Promise<OpenDatabaseResult>}
  */
 export const openDatabase = (db, dbName, dbVersion, objectStoreCreator) => {
@@ -110,7 +116,7 @@ export const DeleteDatabaseResultTag = {
  */
 
 /**
- * An async wrapper for indexedDB.deleteDatabase
+ * An async wrapper for `indexedDB.deleteDatabase`.
  *
  * @param {HasDeleteDatabase} db
  * @param {DatabaseName} dbName

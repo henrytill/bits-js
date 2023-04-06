@@ -48,6 +48,8 @@ const generateKeyMaterial = (password) => {
 };
 
 /**
+ * Makes a `Password` from a string.
+ *
  * @param {string} password
  * @returns {Password}
  */
@@ -68,6 +70,8 @@ export const makePassword = (password) => {
 };
 
 /**
+ * Makes a `Plaintext` from a string.
+ *
  * @param {string} plaintext
  * @returns {Plaintext}
  */
@@ -78,23 +82,29 @@ export const makePlaintext = (plaintext) => {
 };
 
 /**
+ * Decodes a UTF8-encoded buffer into a string.
+ *
  * @param {BufferSource} buffer
  * @returns {string}
  */
-const makeStringFromBytes = (buffer) => {
+const decodeBytes = (buffer) => {
   const decoder = new TextDecoder();
   return decoder.decode(buffer);
 };
 
 /**
+ * Makes a `Plaintext` from a UTF8-encoded buffer.
+ *
  * @param {ArrayBuffer} buffer
  * @returns {Plaintext}
  */
 const makePlaintextFromBytes = (buffer) => {
-  return makePlaintext(makeStringFromBytes(buffer));
+  return makePlaintext(decodeBytes(buffer));
 };
 
 /**
+ * Makes a `Ciphertext` from a buffer.
+ *
  * @param {ArrayBuffer} buffer
  * @returns {Ciphertext}
  */
@@ -105,6 +115,8 @@ const makeCiphertext = (buffer) => {
 };
 
 /**
+ * Makes an array of random bytes that is `length`-bytes long.
+ *
  * @param {number} length
  * @returns {Uint8Array}
  */
@@ -136,6 +148,10 @@ export const makeInitVec = () => makeRandomBytes(12);
  */
 
 /**
+ * Makes a key for signing and verifying.  On first run, a new key is
+ * generated and stored in local storage.  On subsequent runs, the key is
+ * retrieved from local storage.
+ *
  * @param {string} [storageKey]
  * @param {HasCrypto} [subtle]
  * @param {HasStorage} [storage]
@@ -225,7 +241,7 @@ export const makeKey = async (
 // };
 
 /**
- * Encrypts a Plaintext
+ * Encrypts a `Plaintext`.
  *
  * @param {Password} password
  * @param {HasEncode} plaintext
@@ -250,10 +266,10 @@ export const encrypt = async (
 };
 
 /**
- * Decrypts a Ciphertext
+ * Decrypts a `Ciphertext`.
  *
  * @param {Password} password
- * @param {HasBuffer} ciphertext
+ * @param {Ciphertext} ciphertext
  * @param {Uint8Array} salt
  * @param {Uint8Array} iv
  * @returns {Promise<Plaintext>}
@@ -266,13 +282,17 @@ export const decrypt = async (password, ciphertext, salt, iv) => {
 };
 
 /**
+ * An immutable UUID.
+ *
  * @typedef {Object} UUID
  * @property {() => string} get
  */
 
 /**
+ * Generates `UUID`s.
+ *
  * @typedef {Object} UUIDGenerator
- * @property {() => UUID} generate
+ * @property {() => Readonly<UUID>} generate
  */
 
 /**
@@ -281,7 +301,8 @@ export const decrypt = async (password, ciphertext, salt, iv) => {
  */
 
 /**
- * Creates a UUID generator.
+ * Makes a `UUIDGenerator`.
+ *
  * @param {UUIDGeneratorImpl} impl
  * @returns {Readonly<UUIDGenerator>}
  */

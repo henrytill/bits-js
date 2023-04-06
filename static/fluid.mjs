@@ -1,6 +1,9 @@
 // @ts-check
 
 /**
+ * A `FluidContext` is a mechanism for dynamically scoping a value.  This value
+ * is called the "fluid variable".
+ *
  * @typedef {Object} FluidContext
  * @property {(val: any, cb: (...args: any[]) => any, args?: any[]) => any} run - Runs a function in a fluid context.
  * @property {() => any} get - Gets the current value of the fluid variable.
@@ -8,7 +11,7 @@
  */
 
 /**
- * Makes a FluidContext
+ * Makes a `FluidContext`.
  *
  * @returns {Readonly<FluidContext>}
  */
