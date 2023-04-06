@@ -40,9 +40,9 @@ export const makeObjectStoreCreator = (
       objectStoreName,
       objectStoreParameters,
     );
-    indices.forEach(({ name, keyPath, indexParameters }) => {
+    for (const { name, keyPath, indexParameters } of indices) {
       objectStore.createIndex(name, keyPath, indexParameters);
-    });
+    }
     return db;
   };
 };
