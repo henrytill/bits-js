@@ -147,6 +147,21 @@ export const makeInitVec = () => makeRandomBytes(12);
  * @typedef {HasGetItem & HasSetItem} HasStorage
  */
 
+const STORAGE_KEY = 'key';
+
+/** @type {HasCrypto} */
+const SUBTLE_FNS = {
+  generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
+  importKey: crypto.subtle.importKey.bind(crypto.subtle),
+  exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
+};
+
+/** @type {HasStorage} */
+const STORAGE_FNS = {
+  getItem: localStorage.getItem.bind(localStorage),
+  setItem: localStorage.setItem.bind(localStorage),
+};
+
 /**
  * Makes a key for signing and verifying.  On first run, a new key is
  * generated and stored in local storage.  On subsequent runs, the key is
@@ -158,16 +173,9 @@ export const makeInitVec = () => makeRandomBytes(12);
  * @returns {Promise<CryptoKey>}
  */
 export const makeKey = async (
-  storageKey = 'key',
-  subtle = {
-    generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
-    importKey: crypto.subtle.importKey.bind(crypto.subtle),
-    exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
-  },
-  storage = {
-    getItem: localStorage.getItem.bind(localStorage),
-    setItem: localStorage.setItem.bind(localStorage),
-  },
+  storageKey = STORAGE_KEY,
+  subtle = SUBTLE_FNS,
+  storage = STORAGE_FNS,
 ) => {
   /** @type {HmacKeyGenParams} */
   const hmacParams = { name: 'HMAC', hash: { name: 'SHA-256' } };
