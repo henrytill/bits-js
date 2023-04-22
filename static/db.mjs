@@ -22,8 +22,17 @@
  */
 
 /**
- * @typedef {{ open: (name: string, version?: number) => IDBOpenDBRequest }} HasOpen
- * @typedef {{ deleteDatabase: (name: string) => IDBOpenDBRequest }} HasDeleteDatabase
+ *  An object that has an `open` method which opens a database.
+ *
+ * @typedef {Object} HasOpen
+ * @property {(name: string, version?: number) => IDBOpenDBRequest} open
+ */
+
+/**
+ * An object that has a `deleteDatabase` method which deletes a database.
+ *
+ * @typedef {Object} HasDeleteDatabase
+ * @property {(name: string) => IDBOpenDBRequest} deleteDatabase
  */
 
 /**
