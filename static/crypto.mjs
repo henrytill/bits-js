@@ -4,23 +4,77 @@ import { makeLazy } from './prelude.mjs';
 import { STORAGE_FNS } from './storage.mjs';
 
 /**
- * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
+ * An object that can be encoded as a byte array.
  *
- * @typedef {{ encode: () => Uint8Array }} HasEncode
+ * @typedef {Object} HasEncode
+ * @property {() => Uint8Array} encode
+ */
+
+/**
+ * An object that has an underlying byte buffer.
  *
- * @typedef {{ buffer: () => ArrayBuffer }} HasBuffer
+ * @typedef {Object} HasBuffer
+ * @property {() => ArrayBuffer} buffer
+ */
+
+/**
+ * An object that has a string representation.
  *
- * @typedef {{ text: () => string }} HasText
+ * @typedef {Object} HasString
+ * @property {() => string} string
+ */
+
+/**
+ * An object that can produce a `CryptoKey` from a salt.
  *
- * @typedef {HasText & { generateKey: (salt: Uint8Array) => Promise<CryptoKey> }} Password
- *
- * @typedef {HasText & HasEncode} Plaintext
- *
+ * @typedef {Object} HasMakeKey
+ * @property {(salt: Uint8Array) => Promise<CryptoKey>} makeKey
+ */
+
+/**
+ * @typedef {HasString & HasMakeKey} Password
+ * @typedef {HasString & HasEncode} Plaintext
  * @typedef {HasBuffer} Ciphertext
+ */
+
+/**
+ * @typedef {Object} HasCrypto
+ * @property {(algorithm: HmacKeyGenParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>} generateKey
+ * @property {(format: "jwk", keyData: JsonWebKey, algorithm: HmacImportParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>} importKey
+ * @property {(format: "jwk", key: CryptoKey) => Promise<JsonWebKey>} exportKey
+ */
+
+/**
+ * An immutable UUID.
+ *
+ * @typedef {Object} UUID
+ * @property {() => string} get
+ */
+
+/**
+ * Generates `UUID`s.
+ *
+ * @typedef {Object} UUIDGenerator
+ * @property {() => Readonly<UUID>} generate
+ */
+
+/**
+ * A function that generates the string representation of a `UUID`.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
+ * @typedef {() => `${string}-${string}-${string}-${string}-${string}`} UUIDGeneratorImpl
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';
 const ALGO_NAME = 'AES-GCM';
+const STORAGE_KEY = 'key';
+
+/** @type {HasCrypto} */
+const SUBTLE_FNS = {
+  generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
+  importKey: crypto.subtle.importKey.bind(crypto.subtle),
+  exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
+};
 
 /**
  * Makes an object that lazily encodes a string as UTF-8 bytes.  The bytes are
@@ -44,9 +98,9 @@ const makeTextEncoder = (text) => {
  * @returns {Password}
  */
 export const makePassword = (password) => {
-  const text = () => password;
+  const string = () => password;
   const encoder = makeTextEncoder(password);
-  const generateKey = async (/** @type {Uint8Array} */ salt) => {
+  const makeKey = async (/** @type {Uint8Array} */ salt) => {
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
       encoder.encode(),
@@ -62,7 +116,7 @@ export const makePassword = (password) => {
       ['encrypt', 'decrypt'],
     );
   };
-  return Object.freeze({ text, generateKey });
+  return Object.freeze({ string, makeKey });
 };
 
 /**
@@ -73,8 +127,8 @@ export const makePassword = (password) => {
  */
 export const makePlaintext = (plaintext) => {
   const encoder = makeTextEncoder(plaintext);
-  const text = () => plaintext;
-  return Object.freeze({ ...encoder, text });
+  const string = () => plaintext;
+  return Object.freeze({ ...encoder, string });
 };
 
 /**
@@ -105,9 +159,7 @@ const makePlaintextFromBytes = (buffer) => {
  * @returns {Ciphertext}
  */
 const makeCiphertext = (buffer) => {
-  return Object.freeze({
-    buffer: () => buffer,
-  });
+  return Object.freeze({ buffer: () => buffer });
 };
 
 /**
@@ -133,31 +185,6 @@ export const makeSalt = () => makeRandomBytes(16);
  * @returns {Uint8Array}
  */
 export const makeInitVec = () => makeRandomBytes(12);
-
-/**
- * @typedef {{
- *   generateKey: (algorithm: HmacKeyGenParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>
- * }} HasGenerateKey
- *
- * @typedef {{
- *   importKey: (format: "jwk", keyData: JsonWebKey, algorithm: HmacImportParams, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>
- * }} HasImportKey
- *
- * @typedef {{
- *   exportKey: (format: "jwk", key: CryptoKey) => Promise<JsonWebKey>
- * }} HasExportKey
- *
- * @typedef {HasGenerateKey & HasImportKey & HasExportKey} HasCrypto
- */
-
-const STORAGE_KEY = 'key';
-
-/** @type {HasCrypto} */
-const SUBTLE_FNS = {
-  generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
-  importKey: crypto.subtle.importKey.bind(crypto.subtle),
-  exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
-};
 
 /**
  * Makes a key for signing and verifying.  On first run, a new key is
@@ -199,31 +226,89 @@ export const makeKey = async (
 };
 
 /**
- * @type {Object} SaltState
- * @property {string} salt
- * @property {string} signature
+ * Encrypts a `Plaintext`.
+ *
+ * @param {Password} password
+ * @param {HasEncode} plaintext
+ * @param {Uint8Array} salt
+ * @param {Uint8Array} iv
+ * @returns {Promise<{ ciphertext: Ciphertext, salt: Uint8Array, iv: Uint8Array }>}
  */
+export const encrypt = async (
+  password,
+  plaintext,
+  salt = makeSalt(),
+  iv = makeInitVec(),
+) => {
+  const key = await password.makeKey(salt);
+  const buffer = await crypto.subtle.encrypt(
+    { name: ALGO_NAME, iv },
+    key,
+    plaintext.encode(),
+  );
+  const ciphertext = makeCiphertext(buffer);
+  return { ciphertext, salt, iv };
+};
 
 /**
- * @type {Object} InitVecState
- * @property {string} initVec
- * @property {string} signature
+ * Decrypts a `Ciphertext`.
+ *
+ * @param {Password} password
+ * @param {Ciphertext} ciphertext
+ * @param {Uint8Array} salt
+ * @param {Uint8Array} iv
+ * @returns {Promise<Plaintext>}
  */
+export const decrypt = async (password, ciphertext, salt, iv) => {
+  const key = await password.makeKey(salt);
+  return crypto.subtle
+    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
+    .then(makePlaintextFromBytes);
+};
 
 /**
- * @type {Object} State
- * @property {SaltState} salt
- * @property {InitVecState} initVec
+ * Makes a `UUIDGenerator`.
+ *
+ * @param {UUIDGeneratorImpl} impl
+ * @returns {Readonly<UUIDGenerator>}
  */
-
-/**
- * @typedef {{ verify: (key: CryptoKey) => Promise<boolean> }} HasVerify
- * @typedef {HasVerify & { salt: () => Uint8Array }} HasSalt
- * @typedef {HasVerify & { iv: () => Uint8Array }} HasInitVec
- * @typedef {HasSalt & HasInitVec} HasState
- */
+export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
+  /** @type {() => Readonly<UUID>} */
+  const generate = () => {
+    const uuid = impl();
+    const get = () => uuid;
+    return Object.freeze({ get });
+  };
+  return Object.freeze({ generate });
+};
 
 // Sketch of a state object
+//
+// /**
+//  * @type {Object} SaltState
+//  * @property {string} salt
+//  * @property {string} signature
+//  */
+//
+// /**
+//  * @type {Object} InitVecState
+//  * @property {string} initVec
+//  * @property {string} signature
+//  */
+//
+// /**
+//  * @type {Object} State
+//  * @property {SaltState} salt
+//  * @property {InitVecState} initVec
+//  */
+//
+// /**
+//  * @typedef {{ verify: (key: CryptoKey) => Promise<boolean> }} HasVerify
+//  * @typedef {HasVerify & { salt: () => Uint8Array }} HasSalt
+//  * @typedef {HasVerify & { iv: () => Uint8Array }} HasInitVec
+//  * @typedef {HasSalt & HasInitVec} HasState
+//  */
+//
 //
 // export const makeState = () => {
 //   /** @type {(salt?: Uint8Array) => string} */
@@ -244,79 +329,3 @@ export const makeKey = async (
 //   const ivEncoder = makeTextEncoder(localStorage.iv);
 //   return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
 // };
-
-/**
- * Encrypts a `Plaintext`.
- *
- * @param {Password} password
- * @param {HasEncode} plaintext
- * @param {Uint8Array} salt
- * @param {Uint8Array} iv
- * @returns {Promise<{ ciphertext: Ciphertext, salt: Uint8Array, iv: Uint8Array }>}
- */
-export const encrypt = async (
-  password,
-  plaintext,
-  salt = makeSalt(),
-  iv = makeInitVec(),
-) => {
-  const key = await password.generateKey(salt);
-  const buffer = await crypto.subtle.encrypt(
-    { name: ALGO_NAME, iv },
-    key,
-    plaintext.encode(),
-  );
-  const ciphertext = makeCiphertext(buffer);
-  return { ciphertext, salt, iv };
-};
-
-/**
- * Decrypts a `Ciphertext`.
- *
- * @param {Password} password
- * @param {Ciphertext} ciphertext
- * @param {Uint8Array} salt
- * @param {Uint8Array} iv
- * @returns {Promise<Plaintext>}
- */
-export const decrypt = async (password, ciphertext, salt, iv) => {
-  const key = await password.generateKey(salt);
-  return crypto.subtle
-    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
-    .then(makePlaintextFromBytes);
-};
-
-/**
- * An immutable UUID.
- *
- * @typedef {Object} UUID
- * @property {() => string} get
- */
-
-/**
- * Generates `UUID`s.
- *
- * @typedef {Object} UUIDGenerator
- * @property {() => Readonly<UUID>} generate
- */
-
-/**
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
- * @typedef {() => `${string}-${string}-${string}-${string}-${string}`} UUIDGeneratorImpl
- */
-
-/**
- * Makes a `UUIDGenerator`.
- *
- * @param {UUIDGeneratorImpl} impl
- * @returns {Readonly<UUIDGenerator>}
- */
-export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
-  /** @type {() => Readonly<UUID>} */
-  const generate = () => {
-    const uuid = impl();
-    const get = () => uuid;
-    return Object.freeze({ get });
-  };
-  return Object.freeze({ generate });
-};

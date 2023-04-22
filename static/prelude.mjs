@@ -1,6 +1,10 @@
 // @ts-check
 
 /**
+ * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
+ */
+
+/**
  * Creates a thunk that returns the result of `render(value)`.  The result is
  * cached, so that subsequent calls to the thunk return the cached value.
  *

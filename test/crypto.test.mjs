@@ -11,15 +11,15 @@ const text = 'A moving stream of information';
 describe('makePassword()', function () {
   it(SHOULD_CONSTRUCT, function () {
     const password = crypto.makePassword(text);
-    expect(text).to.equal(password.text());
+    expect(text).to.equal(password.string());
   });
 
   it('should deterministically create keys', async function () {
     const a = crypto.makePassword('abc123');
     const b = crypto.makePassword('abc123');
     const salt = crypto.makeSalt();
-    const aKey = await a.generateKey(salt);
-    const bKey = await b.generateKey(salt);
+    const aKey = await a.makeKey(salt);
+    const bKey = await b.makeKey(salt);
     expect(aKey).to.deep.equal(bKey);
   });
 });
@@ -27,7 +27,7 @@ describe('makePassword()', function () {
 describe('makePlaintext()', function () {
   it(SHOULD_CONSTRUCT, function () {
     const plaintext = crypto.makePlaintext(text);
-    expect(text).to.equal(plaintext.text());
+    expect(text).to.equal(plaintext.string());
   });
 });
 
@@ -37,7 +37,7 @@ describe('encrypt()', function () {
     const password = crypto.makePassword('abc123');
     const { ciphertext, salt, iv } = await crypto.encrypt(password, expected);
     const actual = await crypto.decrypt(password, ciphertext, salt, iv);
-    expect(expected.text()).to.equal(actual.text());
+    expect(expected.string()).to.equal(actual.string());
   });
 
   it('should decrypt with a duplicate password', async function () {
@@ -49,7 +49,7 @@ describe('encrypt()', function () {
     );
     const passwordDecrypt = crypto.makePassword('abc123');
     const actual = await crypto.decrypt(passwordDecrypt, ciphertext, salt, iv);
-    expect(expected.text()).to.equal(actual.text());
+    expect(expected.string()).to.equal(actual.string());
   });
 });
 
