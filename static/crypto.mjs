@@ -120,7 +120,18 @@ const makeRandomBytes = (length) => {
   return crypto.getRandomValues(new Uint8Array(length));
 };
 
+/**
+ * Makes a 16-byte salt.
+ *
+ * @returns {Uint8Array}
+ */
 export const makeSalt = () => makeRandomBytes(16);
+
+/**
+ * Makes a 12-byte initialization vector.
+ *
+ * @returns {Uint8Array}
+ */
 export const makeInitVec = () => makeRandomBytes(12);
 
 /**
