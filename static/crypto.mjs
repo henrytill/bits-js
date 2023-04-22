@@ -1,6 +1,7 @@
 // @ts-check
 
 import { makeLazy } from './prelude.mjs';
+import { STORAGE_FNS } from './storage.mjs';
 
 /**
  * @typedef {Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array} TypedArray
@@ -136,10 +137,6 @@ export const makeInitVec = () => makeRandomBytes(12);
  * }} HasExportKey
  *
  * @typedef {HasGenerateKey & HasImportKey & HasExportKey} HasCrypto
- *
- * @typedef {{ getItem: (key: string) => string | null }} HasGetItem
- * @typedef {{ setItem: (key: string, value: string) => void }} HasSetItem
- * @typedef {HasGetItem & HasSetItem} HasStorage
  */
 
 const STORAGE_KEY = 'key';
@@ -151,12 +148,6 @@ const SUBTLE_FNS = {
   exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
 };
 
-/** @type {HasStorage} */
-const STORAGE_FNS = {
-  getItem: localStorage.getItem.bind(localStorage),
-  setItem: localStorage.setItem.bind(localStorage),
-};
-
 /**
  * Makes a key for signing and verifying.  On first run, a new key is
  * generated and stored in local storage.  On subsequent runs, the key is
@@ -164,7 +155,7 @@ const STORAGE_FNS = {
  *
  * @param {string} [storageKey]
  * @param {HasCrypto} [subtle]
- * @param {HasStorage} [storage]
+ * @param {import('./storage.mjs').HasStorage} [storage]
  * @returns {Promise<CryptoKey>}
  */
 export const makeKey = async (
