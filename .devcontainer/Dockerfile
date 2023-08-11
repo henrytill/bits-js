@@ -3,4 +3,4 @@ FROM mcr.microsoft.com/devcontainers/base:debian
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -qq && \
-    apt-get install -yqq node-typescript
+    apt-get install -yqq node-typescript python3
