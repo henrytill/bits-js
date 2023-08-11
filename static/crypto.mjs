@@ -62,7 +62,7 @@ import { STORAGE_FNS } from './storage.mjs';
  * A function that generates the string representation of a `UUID`.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID
- * @typedef {() => `${string}-${string}-${string}-${string}-${string}`} UUIDGeneratorImpl
+ * @typedef {() => string} UUIDGeneratorImpl
  */
 
 const KEY_DERIVATION_FN = 'PBKDF2';

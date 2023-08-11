@@ -1,0 +1,4 @@
+{
+  "typescript.tsdk": "/usr/share/node_modules/typescript/lib",
+  "typescript.disableAutomaticTypeAcquisition": true
+}
