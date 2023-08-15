@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>js-bits tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <style>
+      #testResults {
+        font-family: monospace;
+      }
+      .passed {
+        color: green;
+      }
+      .failed {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Results</h1>
+    <h2>crypto.mjs</h2>
+    <div id="testResults"></div>
+    <script type="module">
+      let test;
+      let cryptoTest;
+
+      const clearResults = () => {
+        const resultsDiv = document.getElementById('testResults');
+        resultsDiv.innerHTML = '';
+      };
+
+      const loadModules = async () => {
+        const timestamp = new Date().getTime();
+        test = await import(`./test.mjs?v=${timestamp}`);
+        cryptoTest = await import(`./crypto.test.mjs?v=${timestamp}`);
+      };
+
+      const runTests = async () => {
+        const resultsDiv = document.getElementById('testResults');
+        return test.runner(cryptoTest.tests, resultsDiv);
+      };
+
+      const reload = async () => {
+        clearResults();
+        await loadModules();
+        return runTests();
+      };
+
+      await reload();
+
+      try {
+        const eventSource = new EventSource('/events');
+        eventSource.addEventListener('reload', reload);
+      } catch (err) {
+        console.log('No /events endpoint found.');
+      }
+    </script>
+  </body>
+</html>
