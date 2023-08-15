@@ -30,10 +30,16 @@
         resultsDiv.innerHTML = '';
       };
 
-      const loadModules = async () => {
+      const loadModules = async (stamp = true) => {
         const timestamp = new Date().getTime();
-        test = await import(`./test.mjs?v=${timestamp}`);
-        cryptoTest = await import(`./crypto.test.mjs?v=${timestamp}`);
+        const testModulePath = stamp
+          ? `./test.mjs?v=${timestamp}`
+          : './test.mjs';
+        const cryptoTestModulePath = stamp
+          ? `./crypto.test.mjs?v=${timestamp}`
+          : './crypto.test.mjs';
+        test = await import(testModulePath);
+        cryptoTest = await import(cryptoTestModulePath);
       };
 
       const runTests = async () => {
@@ -41,13 +47,13 @@
         return test.runner(cryptoTest.tests, resultsDiv);
       };
 
-      const reload = async () => {
+      const reload = async (stamp) => {
         clearResults();
-        await loadModules();
+        await loadModules(stamp);
         return runTests();
       };
 
-      await reload();
+      await reload(false);
 
       try {
         const eventSource = new EventSource('/events');
