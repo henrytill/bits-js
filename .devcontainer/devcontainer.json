@@ -19,7 +19,13 @@
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
-      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.isort"
+      ]
     }
   },
 
