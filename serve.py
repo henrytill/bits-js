@@ -41,14 +41,14 @@ class MyHandler(SimpleHTTPRequestHandler):
             super().do_GET()
 
 
-def watch_files(watch_dir_path):
+def watch_dir(watch_dir_path):
     global watch_dir_fd
 
-    real_time_signal = signal.SIGRTMIN + 1
-    signal.signal(real_time_signal, file_changed_handler)
+    sigrt = signal.SIGRTMIN + 1
+    signal.signal(sigrt, file_changed_handler)
 
     watch_dir_fd = os.open(watch_dir_path, os.O_RDONLY)
-    fcntl.fcntl(watch_dir_fd, fcntl.F_SETSIG, real_time_signal)
+    fcntl.fcntl(watch_dir_fd, fcntl.F_SETSIG, sigrt)
 
     # DN_MULTISHOT seems to result in double-triggers, so instead we re-register
     # the watch manually after sending a reload event.
@@ -57,13 +57,13 @@ def watch_files(watch_dir_path):
 
 def run(server_class=ThreadingHTTPServer, handler_class=MyHandler):
     port = 8000
+    watch_dir_path = os.getcwd()
 
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     print(f'Server running at http://localhost:{port}')
 
-    watch_dir_path = os.getcwd()
-    watch_files(watch_dir_path)
+    watch_dir(watch_dir_path)
     print('Watching directory: {}'.format(watch_dir_path))
 
     try:
