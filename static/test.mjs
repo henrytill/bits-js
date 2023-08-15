@@ -16,6 +16,39 @@ export const makeTest = (description, run) => {
 };
 
 /**
+ * @param {HTMLElement} resultDiv
+ * @param {string} description
+ * @returns {HTMLElement}
+ */
+const addSuccess = (resultDiv, description) => {
+  resultDiv.textContent = `${description}: PASSED`;
+  resultDiv.className = 'passed';
+  return resultDiv;
+};
+
+/**
+ * @param {HTMLElement} resultDiv
+ * @param {string} description
+ * @param {any} err
+ * @returns {HTMLElement}
+ */
+const addFailure = (resultDiv, description, err) => {
+  if (err instanceof Error) {
+    resultDiv.textContent = `${description}: FAILED - ${err.message}`;
+    resultDiv.className = 'failed';
+    if (err.stack !== undefined) {
+      const stackTrace = document.createElement('pre');
+      stackTrace.textContent = err.stack;
+      resultDiv.appendChild(stackTrace);
+    }
+  } else {
+    resultDiv.textContent = `${description}: FAILED - ${err}`;
+    resultDiv.className = 'failed';
+  }
+  return resultDiv;
+};
+
+/**
  * @param {Test[]} tests
  * @param {HTMLElement} resultsDiv
  * @returns {Promise<void>}
@@ -29,11 +62,9 @@ export const runner = async (tests, resultsDiv) => {
     const description = testObj.description;
     try {
       await testObj.run();
-      resultDiv.textContent = `${description}: PASSED`;
-      resultDiv.className = 'passed';
+      addSuccess(resultDiv, description);
     } catch (e) {
-      resultDiv.textContent = `${description}: FAILED - ${e}`;
-      resultDiv.className = 'failed';
+      addFailure(resultDiv, description, e);
     }
     resultsDiv.appendChild(resultDiv);
   }
@@ -53,9 +84,10 @@ export const assert = (expression, message) => {
 
 /**
  * Deeply compares two values for equality.
- * @param {any} a - The first value
- * @param {any} b - The second value
- * @returns {boolean} - True if the values are deeply equal, false otherwise
+ *
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
  */
 export const deepEquals = (a, b) => {
   /** @type {[any, any][]} */
