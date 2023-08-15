@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="data:," />
     <style>
-      #testResults {
+      #cryptoTestResults {
+        font-family: monospace;
+      }
+      #dbTestResults {
         font-family: monospace;
       }
       .passed {
@@ -19,15 +22,23 @@
   </head>
   <body>
     <h1>Test Results</h1>
+
     <h2>crypto.mjs</h2>
-    <div id="testResults"></div>
+    <div id="cryptoTestResults"></div>
+
+    <h2>db.mjs</h2>
+    <div id="dbTestResults"></div>
+
     <script type="module">
       let test;
       let cryptoTest;
+      let dbTest;
 
       const clearResults = () => {
-        const resultsDiv = document.getElementById('testResults');
-        resultsDiv.innerHTML = '';
+        const cryptoResultsDiv = document.getElementById('cryptoTestResults');
+        cryptoResultsDiv.innerHTML = '';
+        const dbResultsDiv = document.getElementById('dbTestResults');
+        dbResultsDiv.innerHTML = '';
       };
 
       const loadModules = async (stamp = true) => {
@@ -38,13 +49,24 @@
         const cryptoTestModulePath = stamp
           ? `./crypto.test.mjs?v=${timestamp}`
           : './crypto.test.mjs';
+        const dbTestModulePath = stamp
+          ? `./db.test.mjs?v=${timestamp}`
+          : './db.test.mjs';
         test = await import(testModulePath);
         cryptoTest = await import(cryptoTestModulePath);
+        dbTest = await import(dbTestModulePath);
       };
 
       const runTests = async () => {
-        const resultsDiv = document.getElementById('testResults');
-        return test.runner(cryptoTest.tests, resultsDiv);
+        await test.runner(
+          cryptoTest.tests,
+          document.getElementById('cryptoTestResults'),
+        );
+        await test.runner(
+          dbTest.tests,
+          document.getElementById('dbTestResults'),
+        );
+        return;
       };
 
       const reload = async (stamp) => {
