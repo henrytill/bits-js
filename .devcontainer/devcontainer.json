@@ -25,7 +25,11 @@
         "ms-python.python",
         "ms-python.black-formatter",
         "ms-python.isort"
-      ]
+      ],
+      "settings": {
+        "typescript.tsdk": "/usr/share/node_modules/typescript/lib",
+        "typescript.disableAutomaticTypeAcquisition": true
+      }
     }
   },
 
