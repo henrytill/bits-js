@@ -95,40 +95,31 @@ export const deepEquals = (a, b) => {
 
   while (stack.length > 0) {
     const maybeTuple = stack.pop();
-
     if (maybeTuple === undefined) {
       return false;
     }
-
     const [x, y] = maybeTuple;
-
     if (x === y) {
       continue;
     }
-
     if (x == null || y == null) {
       return false;
     }
-
     if (typeof x !== typeof y) {
       return false;
     }
-
     if (typeof x === 'object') {
       if (Object.keys(x).length !== Object.keys(y).length) {
         return false;
       }
-
       for (const key in x) {
         stack.push([x[key], y[key]]);
       }
     }
-
     if (Array.isArray(x)) {
       if (x.length !== y.length) {
         return false;
       }
-
       for (let i = 0; i < x.length; i++) {
         stack.push([x[i], y[i]]);
       }
