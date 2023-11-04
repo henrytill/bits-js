@@ -83,6 +83,29 @@ export const assert = (expression, message) => {
 };
 
 /**
+ * @param {() => void} f
+ * @param {any} errorType
+ * @param {string} message
+ * @returns {void}
+ */
+export const assertThrows = (f, errorType, message) => {
+  try {
+    f();
+    throw new Error('Expected function to throw');
+  } catch (/** @type {any} */ e) {
+    if (e instanceof errorType) {
+      if (e.hasOwnProperty('message')) {
+        assert(e.message === message, `Expected error message: ${message}`);
+      } else {
+        assert(message === undefined, 'Expected no error message');
+      }
+    } else {
+      throw e;
+    }
+  }
+};
+
+/**
  * Deeply compares two values for equality.
  *
  * @param {any} a

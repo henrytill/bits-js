@@ -29,11 +29,15 @@
     <h2>fluid.mjs</h2>
     <div class="results" id="fluidTestResults"></div>
 
+    <h2>prelude.mjs</h2>
+    <div class="results" id="preludeTestResults"></div>
+
     <script type="module">
-      let test;
-      let cryptoTest;
-      let dbTest;
-      let fluidTest;
+      let testMod;
+      let cryptoTestMod;
+      let dbTestMod;
+      let fluidTestMod;
+      let preludeTestMod;
 
       const clearResults = () => {
         const cryptoResultsDiv = document.getElementById('cryptoTestResults');
@@ -42,6 +46,8 @@
         dbResultsDiv.innerHTML = '';
         const fluidResultsDiv = document.getElementById('fluidTestResults');
         fluidResultsDiv.innerHTML = '';
+        const preludeResultsDiv = document.getElementById('preludeTestResults');
+        preludeResultsDiv.innerHTML = '';
       };
 
       const loadModules = async (stamp = true) => {
@@ -58,25 +64,35 @@
         const fluidTestModulePath = stamp
           ? `./fluid.test.mjs?v=${timestamp}`
           : './fluid.test.mjs';
-        test = await import(testModulePath);
-        cryptoTest = await import(cryptoTestModulePath);
-        dbTest = await import(dbTestModulePath);
-        fluidTest = await import(fluidTestModulePath);
+        const preludeTestModulePath = stamp
+          ? `./prelude.test.mjs?v=${timestamp}`
+          : './prelude.test.mjs';
+        testMod = await import(testModulePath);
+        cryptoTestMod = await import(cryptoTestModulePath);
+        dbTestMod = await import(dbTestModulePath);
+        fluidTestMod = await import(fluidTestModulePath);
+        preludeTestMod = await import(preludeTestModulePath);
       };
 
       const runTests = async () => {
-        await test.runner(
-          cryptoTest.tests,
-          document.getElementById('cryptoTestResults'),
-        );
-        await test.runner(
-          dbTest.tests,
-          document.getElementById('dbTestResults'),
-        );
-        await test.runner(
-          fluidTest.tests,
-          document.getElementById('fluidTestResults'),
-        );
+        await Promise.all([
+          testMod.runner(
+            cryptoTestMod.tests,
+            document.getElementById('cryptoTestResults'),
+          ),
+          testMod.runner(
+            dbTestMod.tests,
+            document.getElementById('dbTestResults'),
+          ),
+          testMod.runner(
+            fluidTestMod.tests,
+            document.getElementById('fluidTestResults'),
+          ),
+          testMod.runner(
+            preludeTestMod.tests,
+            document.getElementById('preludeTestResults'),
+          ),
+        ]);
         return;
       };
 
