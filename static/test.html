@@ -21,32 +21,38 @@
     <h1>Test Results</h1>
 
     <h2>crypto.mjs</h2>
-    <div class="results" id="cryptoTestResults"></div>
+    <div class="results" id="cryptoResults"></div>
 
     <h2>db.mjs</h2>
-    <div class="results" id="dbTestResults"></div>
+    <div class="results" id="dbResults"></div>
 
     <h2>fluid.mjs</h2>
-    <div class="results" id="fluidTestResults"></div>
+    <div class="results" id="fluidResults"></div>
+
+    <h2>powerbox.mjs</h2>
+    <div class="results" id="powerboxResults"></div>
 
     <h2>prelude.mjs</h2>
-    <div class="results" id="preludeTestResults"></div>
+    <div class="results" id="preludeResults"></div>
 
     <script type="module">
-      let testMod;
-      let cryptoTestMod;
-      let dbTestMod;
-      let fluidTestMod;
-      let preludeTestMod;
+      let testModule;
+      let cryptoTestModule;
+      let dbTestModule;
+      let fluidTestModule;
+      let powerboxTestModule;
+      let preludeTestModule;
 
       const clearResults = () => {
-        const cryptoResultsDiv = document.getElementById('cryptoTestResults');
+        const cryptoResultsDiv = document.getElementById('cryptoResults');
         cryptoResultsDiv.innerHTML = '';
-        const dbResultsDiv = document.getElementById('dbTestResults');
+        const dbResultsDiv = document.getElementById('dbResults');
         dbResultsDiv.innerHTML = '';
-        const fluidResultsDiv = document.getElementById('fluidTestResults');
+        const fluidResultsDiv = document.getElementById('fluidResults');
         fluidResultsDiv.innerHTML = '';
-        const preludeResultsDiv = document.getElementById('preludeTestResults');
+        const powerboxResultsDiv = document.getElementById('powerboxResults');
+        powerboxResultsDiv.innerHTML = '';
+        const preludeResultsDiv = document.getElementById('preludeResults');
         preludeResultsDiv.innerHTML = '';
       };
 
@@ -64,33 +70,41 @@
         const fluidTestModulePath = stamp
           ? `./fluid.test.mjs?v=${timestamp}`
           : './fluid.test.mjs';
+        const powerboxTestModulePath = stamp
+          ? `./powerbox.test.mjs?v=${timestamp}`
+          : './powerbox.test.mjs';
         const preludeTestModulePath = stamp
           ? `./prelude.test.mjs?v=${timestamp}`
           : './prelude.test.mjs';
-        testMod = await import(testModulePath);
-        cryptoTestMod = await import(cryptoTestModulePath);
-        dbTestMod = await import(dbTestModulePath);
-        fluidTestMod = await import(fluidTestModulePath);
-        preludeTestMod = await import(preludeTestModulePath);
+        testModule = await import(testModulePath);
+        cryptoTestModule = await import(cryptoTestModulePath);
+        dbTestModule = await import(dbTestModulePath);
+        fluidTestModule = await import(fluidTestModulePath);
+        powerboxTestModule = await import(powerboxTestModulePath);
+        preludeTestModule = await import(preludeTestModulePath);
       };
 
       const runTests = async () => {
         await Promise.all([
-          testMod.runner(
-            cryptoTestMod.tests,
-            document.getElementById('cryptoTestResults'),
+          testModule.runner(
+            cryptoTestModule.tests,
+            document.getElementById('cryptoResults'),
           ),
-          testMod.runner(
-            dbTestMod.tests,
-            document.getElementById('dbTestResults'),
+          testModule.runner(
+            dbTestModule.tests,
+            document.getElementById('dbResults'),
           ),
-          testMod.runner(
-            fluidTestMod.tests,
-            document.getElementById('fluidTestResults'),
+          testModule.runner(
+            fluidTestModule.tests,
+            document.getElementById('fluidResults'),
           ),
-          testMod.runner(
-            preludeTestMod.tests,
-            document.getElementById('preludeTestResults'),
+          testModule.runner(
+            powerboxTestModule.tests,
+            document.getElementById('powerboxResults'),
+          ),
+          testModule.runner(
+            preludeTestModule.tests,
+            document.getElementById('preludeResults'),
           ),
         ]);
         return;
