@@ -9,9 +9,9 @@ file_changes_detected = threading.Event()
 watch_dir_fd = None
 
 
-def file_changed_handler(signum, frame):
+def file_changed_handler(signum, _frame):
     global file_changes_detected
-    print('File changes detected')
+    print(f'{signum}: File changes detected')
     file_changes_detected.set()
 
 
