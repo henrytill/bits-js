@@ -6,10 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="data:," />
     <style>
-      #cryptoTestResults {
-        font-family: monospace;
-      }
-      #dbTestResults {
+      .results {
         font-family: monospace;
       }
       .passed {
@@ -24,21 +21,27 @@
     <h1>Test Results</h1>
 
     <h2>crypto.mjs</h2>
-    <div id="cryptoTestResults"></div>
+    <div class="results" id="cryptoTestResults"></div>
 
     <h2>db.mjs</h2>
-    <div id="dbTestResults"></div>
+    <div class="results" id="dbTestResults"></div>
+
+    <h2>fluid.mjs</h2>
+    <div class="results" id="fluidTestResults"></div>
 
     <script type="module">
       let test;
       let cryptoTest;
       let dbTest;
+      let fluidTest;
 
       const clearResults = () => {
         const cryptoResultsDiv = document.getElementById('cryptoTestResults');
         cryptoResultsDiv.innerHTML = '';
         const dbResultsDiv = document.getElementById('dbTestResults');
         dbResultsDiv.innerHTML = '';
+        const fluidResultsDiv = document.getElementById('fluidTestResults');
+        fluidResultsDiv.innerHTML = '';
       };
 
       const loadModules = async (stamp = true) => {
@@ -52,9 +55,13 @@
         const dbTestModulePath = stamp
           ? `./db.test.mjs?v=${timestamp}`
           : './db.test.mjs';
+        const fluidTestModulePath = stamp
+          ? `./fluid.test.mjs?v=${timestamp}`
+          : './fluid.test.mjs';
         test = await import(testModulePath);
         cryptoTest = await import(cryptoTestModulePath);
         dbTest = await import(dbTestModulePath);
+        fluidTest = await import(fluidTestModulePath);
       };
 
       const runTests = async () => {
@@ -65,6 +72,10 @@
         await test.runner(
           dbTest.tests,
           document.getElementById('dbTestResults'),
+        );
+        await test.runner(
+          fluidTest.tests,
+          document.getElementById('fluidTestResults'),
         );
         return;
       };
