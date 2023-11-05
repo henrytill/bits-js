@@ -1,5 +1,7 @@
 // @ts-check
 
+/* eslint-env node */
+
 import test from 'node:test';
 import assert from 'node:assert';
 
@@ -8,9 +10,9 @@ import * as fluid from '../static/fluid.mjs';
 test('make() should construct a fluid context', (_) => {
   const fluidContext = fluid.makeFluidContext();
   assert.ok(fluidContext instanceof Object);
-  assert.ok(fluidContext.hasOwnProperty('run'));
-  assert.ok(fluidContext.hasOwnProperty('get'));
-  assert.ok(fluidContext.hasOwnProperty('set'));
+  assert.ok(Object.prototype.hasOwnProperty.call(fluidContext, 'set'));
+  assert.ok(Object.prototype.hasOwnProperty.call(fluidContext, 'get'));
+  assert.ok(Object.prototype.hasOwnProperty.call(fluidContext, 'set'));
 });
 
 test('run() should run a function', (_) => {

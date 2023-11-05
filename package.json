@@ -1,22 +1,18 @@
 {
   "name": "js-bits",
-  "version": "0.1.0",
-  "description": "Some random bits of code",
+  "private": true,
   "scripts": {
-    "build": "tsc",
+    "check": "tsc",
+    "lint": "eslint static/*.mjs test/*.mjs",
+    "format": "prettier -w .",
     "test": "node --test test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/henrytill/js-bits.git"
-  },
-  "author": "Henry Till <henrytill@gmail.com>",
-  "bugs": {
-    "url": "https://github.com/henrytill/js-bits/issues"
-  },
-  "homepage": "https://github.com/henrytill/js-bits#readme",
   "devDependencies": {
     "@types/node": "^20.8.10",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "eslint": "^8.53.0",
+    "prettier": "^3.0.3",
     "typescript": "^5.2.2"
   }
 }

@@ -1,5 +1,7 @@
 // @ts-check
 
+/* eslint-env node */
+
 import test, { describe, it } from 'node:test';
 import assert from 'node:assert';
 
@@ -22,9 +24,9 @@ const checkError = (err) => {
 
 test('makePowerbox() should construct a Powerbox', () => {
   const pb = powerbox.makePowerbox();
-  assert.ok(pb.hasOwnProperty('request'));
-  assert.ok(pb.hasOwnProperty('grant'));
-  assert.ok(pb.hasOwnProperty('revoke'));
+  assert.ok(Object.prototype.hasOwnProperty.call(pb, 'request'));
+  assert.ok(Object.prototype.hasOwnProperty.call(pb, 'grant'));
+  assert.ok(Object.prototype.hasOwnProperty.call(pb, 'revoke'));
 });
 
 /** @typedef {{ add: (a: number, b: number) => number }} Adder*/
