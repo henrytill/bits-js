@@ -19,10 +19,7 @@
  */
 export const parsePosts = (parser, xml) => {
   const document = parser.parseFromString(xml, 'application/xml');
-
-  /** @type {Post[]} */
-  let posts = [];
-  // Iterate through the document, collecting post elements
+  let ret = [];
   for (let post of document.querySelectorAll('post')) {
     const hrefstr = post.getAttribute('href');
     if (hrefstr === null) {
@@ -46,7 +43,7 @@ export const parsePosts = (parser, xml) => {
     }
     const shared = (post.getAttribute('shared') ?? 'no') === 'yes';
     const toread = (post.getAttribute('toread') ?? 'no') === 'yes';
-    posts.push({
+    ret.push({
       href,
       time,
       description,
@@ -57,5 +54,5 @@ export const parsePosts = (parser, xml) => {
       toread,
     });
   }
-  return posts;
+  return ret;
 };
