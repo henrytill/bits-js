@@ -43,16 +43,7 @@ export const parsePosts = (parser, xml) => {
     }
     const shared = (post.getAttribute('shared') ?? 'no') === 'yes';
     const toread = (post.getAttribute('toread') ?? 'no') === 'yes';
-    ret.push({
-      href,
-      time,
-      description,
-      extended,
-      tag,
-      hash,
-      shared,
-      toread,
-    });
+    ret.push({ href, time, description, extended, tag, hash, shared, toread });
   }
   return ret;
 };

@@ -267,50 +267,47 @@ export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
   return Object.freeze({ generate });
 };
 
-// Sketch of a state object
-//
-// /**
-//  * @type {Object} SaltState
-//  * @property {string} salt
-//  * @property {string} signature
-//  */
-//
-// /**
-//  * @type {Object} InitVecState
-//  * @property {string} initVec
-//  * @property {string} signature
-//  */
-//
-// /**
-//  * @type {Object} State
-//  * @property {SaltState} salt
-//  * @property {InitVecState} initVec
-//  */
-//
-// /**
-//  * @typedef {{ verify: (key: CryptoKey) => Promise<boolean> }} HasVerify
-//  * @typedef {HasVerify & { salt: () => Uint8Array }} HasSalt
-//  * @typedef {HasVerify & { iv: () => Uint8Array }} HasInitVec
-//  * @typedef {HasSalt & HasInitVec} HasState
-//  */
-//
-//
-// export const makeState = () => {
-//   /** @type {(salt?: Uint8Array) => string} */
-//   const makeSaltString = (salt = makeSalt()) => {
-//     return makeStringFromBytes(salt);
-//   };
-//   /** @type {(iv?: Uint8Array) => string} */
-//   const makeIVString = (iv = makeInitVec()) => {
-//     return makeStringFromBytes(iv);
-//   };
-//   if (!localStorage.salt) {
-//     localStorage.salt = makeSaltString();
-//   }
-//   if (!localStorage.iv) {
-//     localStorage.iv = makeIVString();
-//   }
-//   const saltEncoder = makeTextEncoder(localStorage.salt);
-//   const ivEncoder = makeTextEncoder(localStorage.iv);
-//   return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
-// };
+/**
+ * @type {Object} SaltState
+ * @property {string} salt
+ * @property {string} signature
+ */
+
+/**
+ * @type {Object} InitVecState
+ * @property {string} initVec
+ * @property {string} signature
+ */
+
+/**
+ * @type {Object} State
+ * @property {SaltState} salt
+ * @property {InitVecState} initVec
+ */
+
+/**
+ * @typedef {{ verify: (key: CryptoKey) => Promise<boolean> }} HasVerify
+ * @typedef {HasVerify & { salt: () => Uint8Array }} HasSalt
+ * @typedef {HasVerify & { iv: () => Uint8Array }} HasInitVec
+ * @typedef {HasSalt & HasInitVec} HasState
+ */
+
+export const makeState = () => {
+  /** @type {(salt?: Uint8Array) => string} */
+  const makeSaltString = (salt = makeSalt()) => {
+    return decodeBytes(salt);
+  };
+  /** @type {(iv?: Uint8Array) => string} */
+  const makeIVString = (iv = makeInitVec()) => {
+    return decodeBytes(iv);
+  };
+  if (!localStorage.salt) {
+    localStorage.salt = makeSaltString();
+  }
+  if (!localStorage.iv) {
+    localStorage.iv = makeIVString();
+  }
+  const saltEncoder = makeTextEncoder(localStorage.salt);
+  const ivEncoder = makeTextEncoder(localStorage.iv);
+  return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
+};

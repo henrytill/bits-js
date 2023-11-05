@@ -22,10 +22,8 @@
 
     <h2>crypto.mjs</h2>
     <div class="results" id="cryptoResults"></div>
-
     <h2>db.mjs</h2>
     <div class="results" id="dbResults"></div>
-
     <h2>pinboard.mjs</h2>
     <div class="results" id="pinboardResults"></div>
 
@@ -44,20 +42,14 @@
         pinboardResultsDiv.innerHTML = '';
       };
 
+      const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` : path);
+
       const loadModules = async (stamp = true) => {
         const timestamp = new Date().getTime();
-        const testModulePath = stamp ? `./test.mjs?v=${timestamp}` : './test.mjs';
-        const cryptoTestModulePath = stamp
-          ? `./crypto.test.mjs?v=${timestamp}`
-          : './crypto.test.mjs';
-        const dbTestModulePath = stamp ? `./db.test.mjs?v=${timestamp}` : './db.test.mjs';
-        const pinboardTestModulePath = stamp
-          ? `./pinboard.test.mjs?v=${timestamp}`
-          : './pinboard.test.mjs';
-        testModule = await import(testModulePath);
-        cryptoTestModule = await import(cryptoTestModulePath);
-        dbTestModule = await import(dbTestModulePath);
-        pinboardTestModule = await import(pinboardTestModulePath);
+        testModule = await import(makePath(stamp, timestamp, './test.mjs'));
+        cryptoTestModule = await import(makePath(stamp, timestamp, './crypto.test.mjs'));
+        dbTestModule = await import(makePath(stamp, timestamp, './db.test.mjs'));
+        pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
       };
 
       const runTests = async () => {
