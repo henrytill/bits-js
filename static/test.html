@@ -26,34 +26,16 @@
     <h2>db.mjs</h2>
     <div class="results" id="dbResults"></div>
 
-    <h2>fluid.mjs</h2>
-    <div class="results" id="fluidResults"></div>
-
-    <h2>powerbox.mjs</h2>
-    <div class="results" id="powerboxResults"></div>
-
-    <h2>prelude.mjs</h2>
-    <div class="results" id="preludeResults"></div>
-
     <script type="module">
       let testModule;
       let cryptoTestModule;
       let dbTestModule;
-      let fluidTestModule;
-      let powerboxTestModule;
-      let preludeTestModule;
 
       const clearResults = () => {
         const cryptoResultsDiv = document.getElementById('cryptoResults');
         cryptoResultsDiv.innerHTML = '';
         const dbResultsDiv = document.getElementById('dbResults');
         dbResultsDiv.innerHTML = '';
-        const fluidResultsDiv = document.getElementById('fluidResults');
-        fluidResultsDiv.innerHTML = '';
-        const powerboxResultsDiv = document.getElementById('powerboxResults');
-        powerboxResultsDiv.innerHTML = '';
-        const preludeResultsDiv = document.getElementById('preludeResults');
-        preludeResultsDiv.innerHTML = '';
       };
 
       const loadModules = async (stamp = true) => {
@@ -67,21 +49,9 @@
         const dbTestModulePath = stamp
           ? `./db.test.mjs?v=${timestamp}`
           : './db.test.mjs';
-        const fluidTestModulePath = stamp
-          ? `./fluid.test.mjs?v=${timestamp}`
-          : './fluid.test.mjs';
-        const powerboxTestModulePath = stamp
-          ? `./powerbox.test.mjs?v=${timestamp}`
-          : './powerbox.test.mjs';
-        const preludeTestModulePath = stamp
-          ? `./prelude.test.mjs?v=${timestamp}`
-          : './prelude.test.mjs';
         testModule = await import(testModulePath);
         cryptoTestModule = await import(cryptoTestModulePath);
         dbTestModule = await import(dbTestModulePath);
-        fluidTestModule = await import(fluidTestModulePath);
-        powerboxTestModule = await import(powerboxTestModulePath);
-        preludeTestModule = await import(preludeTestModulePath);
       };
 
       const runTests = async () => {
@@ -93,18 +63,6 @@
           testModule.runner(
             dbTestModule.tests,
             document.getElementById('dbResults'),
-          ),
-          testModule.runner(
-            fluidTestModule.tests,
-            document.getElementById('fluidResults'),
-          ),
-          testModule.runner(
-            powerboxTestModule.tests,
-            document.getElementById('powerboxResults'),
-          ),
-          testModule.runner(
-            preludeTestModule.tests,
-            document.getElementById('preludeResults'),
           ),
         ]);
         return;
