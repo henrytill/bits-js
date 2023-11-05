@@ -14,7 +14,7 @@
   // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  // "postCreateCommand": "bash ./.devcontainer/post-create.sh",
+  "postCreateCommand": "bash ./.devcontainer/post-create.sh",
 
   // Configure tool-specific properties.
   "customizations": {
@@ -27,7 +27,7 @@
         "ms-python.isort"
       ],
       "settings": {
-        "typescript.tsdk": "/usr/share/node_modules/typescript/lib",
+        "typescript.tsdk": "node_modules/typescript/lib",
         "typescript.disableAutomaticTypeAcquisition": true
       }
     }
