@@ -5,7 +5,8 @@
     "check": "tsc",
     "lint": "eslint static/*.mjs test/*.mjs",
     "format": "prettier -w .",
-    "test": "node --test test"
+    "test": "node --test test",
+    "serve": "node server.mjs"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.4",
