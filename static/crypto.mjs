@@ -214,13 +214,7 @@ export const makeKey = async (
     storage.setItem(storageKey, JSON.stringify(exported));
   } else {
     const imported = JSON.parse(item);
-    key = await subtle.importKey(
-      storageFormat,
-      imported,
-      hmacParams,
-      true,
-      keyUsages,
-    );
+    key = await subtle.importKey(storageFormat, imported, hmacParams, true, keyUsages);
   }
   return key;
 };
@@ -234,18 +228,9 @@ export const makeKey = async (
  * @param {Uint8Array} iv
  * @returns {Promise<{ ciphertext: Ciphertext, salt: Uint8Array, iv: Uint8Array }>}
  */
-export const encrypt = async (
-  password,
-  plaintext,
-  salt = makeSalt(),
-  iv = makeInitVec(),
-) => {
+export const encrypt = async (password, plaintext, salt = makeSalt(), iv = makeInitVec()) => {
   const key = await password.makeKey(salt);
-  const buffer = await crypto.subtle.encrypt(
-    { name: ALGO_NAME, iv },
-    key,
-    plaintext.encode(),
-  );
+  const buffer = await crypto.subtle.encrypt({ name: ALGO_NAME, iv }, key, plaintext.encode());
   const ciphertext = makeCiphertext(buffer);
   return { ciphertext, salt, iv };
 };

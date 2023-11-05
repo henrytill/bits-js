@@ -95,10 +95,7 @@ export const assertThrows = (f, errorType, message) => {
   } catch (/** @type {any} */ e) {
     if (e instanceof errorType) {
       if (Object.prototype.hasOwnProperty.call(e, 'message')) {
-        assert(
-          e.message === message,
-          `Expected error message: ${message}, actual: ${e.message}`,
-        );
+        assert(e.message === message, `Expected error message: ${message}, actual: ${e.message}`);
       } else {
         assert(message === undefined, 'Expected no error message');
       }

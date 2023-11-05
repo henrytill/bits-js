@@ -77,19 +77,13 @@ const resultShouldHaveDatabase = test.makeTest(
   },
 );
 
-const openedDatabaseShouldClose = test.makeTest(
-  'An opened database should close',
-  () => {
-    result.db.close();
-  },
-);
+const openedDatabaseShouldClose = test.makeTest('An opened database should close', () => {
+  result.db.close();
+});
 
-const deleteDatabaseShouldSucceed = test.makeTest(
-  'deleteDatabase() should succeed',
-  async () => {
-    await deleteDatabase(dbName);
-  },
-);
+const deleteDatabaseShouldSucceed = test.makeTest('deleteDatabase() should succeed', async () => {
+  await deleteDatabase(dbName);
+});
 
 export const tests = [
   openDatabaseShouldReturnPromise,

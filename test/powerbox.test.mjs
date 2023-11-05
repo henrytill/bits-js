@@ -69,10 +69,7 @@ describe('request()', () => {
     const revokeResult = pb.revoke(CALLER_ID, CAP_ID);
     assert.strictEqual(revokeResult.tag, powerbox.ResultTag.OK);
     const requestResult = pb.request(CALLER_ID, CAP_ID);
-    assert.strictEqual(
-      requestResult.tag,
-      powerbox.ResultTag.REVOKED_CAPABILITY,
-    );
+    assert.strictEqual(requestResult.tag, powerbox.ResultTag.REVOKED_CAPABILITY);
     const maybeGadder = /** @type {Adder | null} */ (requestResult.value);
     assert.notStrictEqual(maybeGadder, null);
     assert.throws(() => maybeGadder?.add(2, 2), checkError);

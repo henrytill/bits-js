@@ -51,13 +51,10 @@ test('DOMParser parses Pinboard XML Bookmark Export Format', () => {
 
   assert.deepStrictEqual(
     {
-      href: new URL(
-        'https://docs.microsoft.com/en-us/sysinternals/downloads/procmon',
-      ),
+      href: new URL('https://docs.microsoft.com/en-us/sysinternals/downloads/procmon'),
       time: new Date('2020-11-24T02:24:59Z'),
       description: 'Process Monitor - Windows Sysinternals | Microsoft Docs',
-      extended:
-        'Monitor file system, Registry, process, thread and DLL activity in real-time.',
+      extended: 'Monitor file system, Registry, process, thread and DLL activity in real-time.',
       tag: ['windows-dev'],
       hash: 'b87fcc08e549f4076ebeeeaf095482a5',
       shared: false,

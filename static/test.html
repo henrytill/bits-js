@@ -46,15 +46,11 @@
 
       const loadModules = async (stamp = true) => {
         const timestamp = new Date().getTime();
-        const testModulePath = stamp
-          ? `./test.mjs?v=${timestamp}`
-          : './test.mjs';
+        const testModulePath = stamp ? `./test.mjs?v=${timestamp}` : './test.mjs';
         const cryptoTestModulePath = stamp
           ? `./crypto.test.mjs?v=${timestamp}`
           : './crypto.test.mjs';
-        const dbTestModulePath = stamp
-          ? `./db.test.mjs?v=${timestamp}`
-          : './db.test.mjs';
+        const dbTestModulePath = stamp ? `./db.test.mjs?v=${timestamp}` : './db.test.mjs';
         const pinboardTestModulePath = stamp
           ? `./pinboard.test.mjs?v=${timestamp}`
           : './pinboard.test.mjs';
@@ -66,18 +62,9 @@
 
       const runTests = async () => {
         await Promise.all([
-          testModule.runner(
-            cryptoTestModule.tests,
-            document.getElementById('cryptoResults'),
-          ),
-          testModule.runner(
-            dbTestModule.tests,
-            document.getElementById('dbResults'),
-          ),
-          testModule.runner(
-            pinboardTestModule.tests,
-            document.getElementById('pinboardResults'),
-          ),
+          testModule.runner(cryptoTestModule.tests, document.getElementById('cryptoResults')),
+          testModule.runner(dbTestModule.tests, document.getElementById('dbResults')),
+          testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
         ]);
         return;
       };

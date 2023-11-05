@@ -45,16 +45,9 @@
  * @returns {DatabaseModifier}
  * @throws {DOMException}
  */
-export const makeObjectStoreCreator = (
-  objectStoreName,
-  objectStoreParameters,
-  indices,
-) => {
+export const makeObjectStoreCreator = (objectStoreName, objectStoreParameters, indices) => {
   return (/** @type {IDBDatabase} */ db) => {
-    const objectStore = db.createObjectStore(
-      objectStoreName,
-      objectStoreParameters,
-    );
+    const objectStore = db.createObjectStore(objectStoreName, objectStoreParameters);
     for (const { name, keyPath, indexParameters } of indices) {
       objectStore.createIndex(name, keyPath, indexParameters);
     }

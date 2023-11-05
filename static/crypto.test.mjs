@@ -33,16 +33,13 @@ const makePlaintextShouldConstruct = test.makeTest(
   },
 );
 
-const encryptShouldRoundTrip = test.makeTest(
-  'encrypt() should round-trip',
-  async () => {
-    const expected = crypto.makePlaintext(text);
-    const password = crypto.makePassword('abc123');
-    const { ciphertext, salt, iv } = await crypto.encrypt(password, expected);
-    const actual = await crypto.decrypt(password, ciphertext, salt, iv);
-    test.assert(expected.string() === actual.string());
-  },
-);
+const encryptShouldRoundTrip = test.makeTest('encrypt() should round-trip', async () => {
+  const expected = crypto.makePlaintext(text);
+  const password = crypto.makePassword('abc123');
+  const { ciphertext, salt, iv } = await crypto.encrypt(password, expected);
+  const actual = await crypto.decrypt(password, ciphertext, salt, iv);
+  test.assert(expected.string() === actual.string());
+});
 
 const encryptShouldDecryptWithADuplicatePassword = test.makeTest(
   'encrypt() should decrypt with a duplicate password',
@@ -103,8 +100,7 @@ const generator = crypto.makeUUIDGenerator();
 
 const uuid = generator.generate();
 
-const uuidMatch =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const uuidMatch = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const uuidGeneratorShouldGenerateUUIDs = test.makeTest(
   'UUIDGenerator#generate should generate UUIDs',
@@ -128,18 +124,17 @@ const uuidGeneratorShouldGenerateUniqueUUIDs = test.makeTest(
   },
 );
 
-const uuidGeneratorShouldGenerateUniqueUUIDsAcrossMultipleGenerators =
-  test.makeTest(
-    'UUIDGenerator#generate should generate unique UUIDs across multiple generators',
-    () => {
-      const uuids = new Set();
-      for (let i = 0; i < 1000; i++) {
-        uuids.add(generator.generate().get());
-        uuids.add(crypto.makeUUIDGenerator().generate().get());
-      }
-      test.assert(uuids.size === 2000);
-    },
-  );
+const uuidGeneratorShouldGenerateUniqueUUIDsAcrossMultipleGenerators = test.makeTest(
+  'UUIDGenerator#generate should generate unique UUIDs across multiple generators',
+  () => {
+    const uuids = new Set();
+    for (let i = 0; i < 1000; i++) {
+      uuids.add(generator.generate().get());
+      uuids.add(crypto.makeUUIDGenerator().generate().get());
+    }
+    test.assert(uuids.size === 2000);
+  },
+);
 
 export const tests = [
   makePasswordShouldConstruct,
