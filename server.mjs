@@ -33,6 +33,33 @@ const STATIC_PATH = path.join(process.cwd(), './static');
 const toBool = [() => true, () => false];
 
 /**
+ * Wraps a listener function in a leading-edge debouncer.
+ *
+ * @param {(...args: any[]) => void} f
+ * @param {number} delay
+ * @returns {(...args: any[]) => void}
+ */
+const debounce = (f, delay) => {
+  /** @type {NodeJS.Timeout | undefined} */
+  let timeoutId;
+
+  let shouldFire = true;
+
+  return function (...args) {
+    if (shouldFire) {
+      f.apply(this, args);
+      shouldFire = false;
+    }
+
+    clearTimeout(timeoutId);
+
+    timeoutId = setTimeout(() => {
+      shouldFire = true;
+    }, delay);
+  };
+};
+
+/**
  *
  * @param {http.ServerResponse<http.IncomingMessage>} res
  * @param {fs.WatchEventType} eventType
@@ -60,9 +87,8 @@ const handleEvents = (req, res) => {
   });
 
   /** @type {fs.WatchListener<string>} */
-  const onFileChange = handleChange.bind(null, res);
+  const onFileChange = debounce(handleChange.bind(null, res), 1000);
 
-  // TODO: debounce
   fs.watch(STATIC_PATH, onFileChange);
 };
 
