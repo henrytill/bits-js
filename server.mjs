@@ -60,27 +60,27 @@ const debounce = (f, delay) => {
 };
 
 /**
- *
  * @param {http.ServerResponse<http.IncomingMessage>} res
  * @param {fs.WatchEventType} eventType
  * @param {string} filename
  */
 const handleChange = (res, eventType, filename) => {
-  console.log(`Change detected: ${eventType} ${filename}`);
-  res.write(`event: reload\n`);
-  res.write(`data: ${JSON.stringify({ eventType, filename })}\n\n`);
-  console.log(`Sending reload event for ${filename}`);
+  const event = 'reload';
+  const data = JSON.stringify({ eventType, filename });
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${data}\n\n`);
+  console.log(`SSE: event: ${event}`);
+  console.log(`SSE: data: ${data}`);
 };
 
 /**
- *
  * @param {http.IncomingMessage} req
  * @param {http.ServerResponse<http.IncomingMessage>} res
  */
 const handleEvents = (req, res) => {
-  console.log(`SSE connected: ${req.method} ${req.url}`);
+  const statusCode = 200;
 
-  res.writeHead(200, {
+  res.writeHead(statusCode, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
@@ -90,6 +90,8 @@ const handleEvents = (req, res) => {
   const onFileChange = debounce(handleChange.bind(null, res), 1000);
 
   fs.watch(STATIC_PATH, onFileChange);
+
+  console.log(`${req.method} ${req.url} ${statusCode}: SSE Connected`);
 };
 
 const prepareFile = async (/** @type {string} */ url) => {
