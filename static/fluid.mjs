@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * A `FluidContext` is a mechanism for dynamically scoping a value.  This value
  * is called the "fluid variable".

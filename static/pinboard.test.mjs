@@ -1,5 +1,3 @@
-// @ts-check
-
 import * as pinboard from './pinboard.mjs';
 import * as test from './test.mjs';
 

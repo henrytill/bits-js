@@ -1,5 +1,3 @@
-// @ts-check
-
 // eslint-env node
 
 /**
@@ -8,9 +6,9 @@
  * Adapted from:
  * https://developer.mozilla.org/en-US/docs/Learn/Server-side/Node_server_without_framework
  */
-import * as fs from 'node:fs';
-import * as http from 'node:http';
-import * as path from 'node:path';
+import fs from 'node:fs';
+import http from 'node:http';
+import path from 'node:path';
 
 const PORT = 8000;
 
@@ -35,9 +33,9 @@ const toBool = [() => true, () => false];
 /**
  * Wraps a listener function in a leading-edge debouncer.
  *
- * @param {(...args: any[]) => void} f
+ * @param {(this: any, ...args: any[]) => void} f
  * @param {number} delay
- * @returns {(...args: any[]) => void}
+ * @returns {(this: any, ...args: any[]) => void}
  */
 const debounce = (f, delay) => {
   /** @type {NodeJS.Timeout | undefined} */

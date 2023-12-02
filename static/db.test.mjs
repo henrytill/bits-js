@@ -1,5 +1,3 @@
-// @ts-check
-
 import * as db from './db.mjs';
 import * as test from './test.mjs';
 

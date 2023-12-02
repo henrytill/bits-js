@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * A `Powerbox` is a mechanism for granting and revoking capabilities to callers.
  *

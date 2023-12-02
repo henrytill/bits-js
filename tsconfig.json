@@ -2,11 +2,9 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
-    "moduleResolution": "node",
+    "module": "nodenext",
     "noEmit": true,
-    "strict": true,
-    "target": "ES6",
-    "allowSyntheticDefaultImports": true
+    "strict": true
   },
-  "include": ["static/**/*", "test/**/*"]
+  "include": ["static/**/*", "test/**/*", "server.mjs"]
 }

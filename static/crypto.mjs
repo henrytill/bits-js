@@ -1,5 +1,3 @@
-// @ts-check
-
 import { makeLazy } from './prelude.mjs';
 import { STORAGE_FNS } from './storage.mjs';
 

@@ -1,5 +1,3 @@
-// @ts-check
-
 import * as crypto from './crypto.mjs';
 import * as test from './test.mjs';
 

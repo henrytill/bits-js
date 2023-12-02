@@ -1,5 +1,3 @@
-// @ts-check
-
 /**
  * @typedef {Object} Test
  * @property {string} description
