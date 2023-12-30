@@ -1,80 +1,88 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>js-bits tests</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="data:," />
-    <style>
-      .results {
-        font-family: monospace;
-      }
-      .passed {
-        color: green;
-      }
-      .failed {
-        color: red;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Test Results</h1>
+    <head>
+        <meta charset="utf-8" />
+        <title>js-bits tests</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="data:," />
+        <style>
+            .results {
+                font-family: monospace;
+            }
+            .passed {
+                color: green;
+            }
+            .failed {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Test Results</h1>
 
-    <h2>crypto.mjs</h2>
-    <div class="results" id="cryptoResults"></div>
-    <h2>db.mjs</h2>
-    <div class="results" id="dbResults"></div>
-    <h2>pinboard.mjs</h2>
-    <div class="results" id="pinboardResults"></div>
+        <h2>crypto.mjs</h2>
+        <div class="results" id="cryptoResults"></div>
+        <h2>db.mjs</h2>
+        <div class="results" id="dbResults"></div>
+        <h2>pinboard.mjs</h2>
+        <div class="results" id="pinboardResults"></div>
 
-    <script type="module">
-      let testModule;
-      let cryptoTestModule;
-      let dbTestModule;
-      let pinboardTestModule;
+        <script type="module">
+            let testModule;
+            let cryptoTestModule;
+            let dbTestModule;
+            let pinboardTestModule;
 
-      const clearResults = () => {
-        const cryptoResultsDiv = document.getElementById('cryptoResults');
-        cryptoResultsDiv.innerHTML = '';
-        const dbResultsDiv = document.getElementById('dbResults');
-        dbResultsDiv.innerHTML = '';
-        const pinboardResultsDiv = document.getElementById('pinboardResults');
-        pinboardResultsDiv.innerHTML = '';
-      };
+            const clearResults = () => {
+                const cryptoResultsDiv = document.getElementById('cryptoResults');
+                cryptoResultsDiv.innerHTML = '';
+                const dbResultsDiv = document.getElementById('dbResults');
+                dbResultsDiv.innerHTML = '';
+                const pinboardResultsDiv = document.getElementById('pinboardResults');
+                pinboardResultsDiv.innerHTML = '';
+            };
 
-      const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` : path);
+            const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` : path);
 
-      const loadModules = async (stamp = true) => {
-        const timestamp = new Date().getTime();
-        testModule = await import(makePath(stamp, timestamp, './test.mjs'));
-        cryptoTestModule = await import(makePath(stamp, timestamp, './crypto.test.mjs'));
-        dbTestModule = await import(makePath(stamp, timestamp, './db.test.mjs'));
-        pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
-      };
+            const loadModules = async (stamp = true) => {
+                const timestamp = new Date().getTime();
+                testModule = await import(makePath(stamp, timestamp, './test.mjs'));
+                cryptoTestModule = await import(makePath(stamp, timestamp, './crypto.test.mjs'));
+                dbTestModule = await import(makePath(stamp, timestamp, './db.test.mjs'));
+                pinboardTestModule = await import(
+                    makePath(stamp, timestamp, './pinboard.test.mjs')
+                );
+            };
 
-      const runTests = async () => {
-        await Promise.all([
-          testModule.runner(cryptoTestModule.tests, document.getElementById('cryptoResults')),
-          testModule.runner(dbTestModule.tests, document.getElementById('dbResults')),
-          testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
-        ]);
-        return;
-      };
+            const runTests = async () => {
+                await Promise.all([
+                    testModule.runner(
+                        cryptoTestModule.tests,
+                        document.getElementById('cryptoResults'),
+                    ),
+                    testModule.runner(dbTestModule.tests, document.getElementById('dbResults')),
+                    testModule.runner(
+                        pinboardTestModule.tests,
+                        document.getElementById('pinboardResults'),
+                    ),
+                ]);
+                return;
+            };
 
-      const reload = async (stamp) => {
-        clearResults();
-        await loadModules(stamp);
-        return runTests();
-      };
+            const reload = async (stamp) => {
+                clearResults();
+                await loadModules(stamp);
+                return runTests();
+            };
 
-      await reload(false);
+            await reload(false);
 
-      try {
-        const eventSource = new EventSource('/events');
-        eventSource.addEventListener('reload', reload);
-      } catch (err) {
-        console.log('No /events endpoint found.');
-      }
-    </script>
-  </body>
+            try {
+                const eventSource = new EventSource('/events');
+                eventSource.addEventListener('reload', reload);
+            } catch (err) {
+                console.log('No /events endpoint found.');
+            }
+        </script>
+    </body>
 </html>

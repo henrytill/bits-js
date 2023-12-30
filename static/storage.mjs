@@ -18,6 +18,6 @@
 
 /** @type {HasStorage} */
 export const STORAGE_FNS = {
-  getItem: localStorage.getItem.bind(localStorage),
-  setItem: localStorage.setItem.bind(localStorage),
+    getItem: localStorage.getItem.bind(localStorage),
+    setItem: localStorage.setItem.bind(localStorage),
 };

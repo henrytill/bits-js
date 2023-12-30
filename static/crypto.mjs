@@ -69,9 +69,9 @@ const STORAGE_KEY = 'key';
 
 /** @type {HasCrypto} */
 const SUBTLE_FNS = {
-  generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
-  importKey: crypto.subtle.importKey.bind(crypto.subtle),
-  exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
+    generateKey: crypto.subtle.generateKey.bind(crypto.subtle),
+    importKey: crypto.subtle.importKey.bind(crypto.subtle),
+    exportKey: crypto.subtle.exportKey.bind(crypto.subtle),
 };
 
 /**
@@ -82,11 +82,11 @@ const SUBTLE_FNS = {
  * @returns {HasEncode}
  */
 const makeTextEncoder = (text) => {
-  const encode = makeLazy(text, (t) => {
-    const encoder = new TextEncoder();
-    return encoder.encode(t);
-  });
-  return Object.freeze({ encode });
+    const encode = makeLazy(text, (t) => {
+        const encoder = new TextEncoder();
+        return encoder.encode(t);
+    });
+    return Object.freeze({ encode });
 };
 
 /**
@@ -96,25 +96,25 @@ const makeTextEncoder = (text) => {
  * @returns {Password}
  */
 export const makePassword = (password) => {
-  const string = () => password;
-  const encoder = makeTextEncoder(password);
-  const makeKey = async (/** @type {Uint8Array} */ salt) => {
-    const keyMaterial = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(),
-      { name: KEY_DERIVATION_FN },
-      false,
-      ['deriveBits', 'deriveKey'],
-    );
-    return crypto.subtle.deriveKey(
-      { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
-      keyMaterial,
-      { name: ALGO_NAME, length: 256 },
-      true,
-      ['encrypt', 'decrypt'],
-    );
-  };
-  return Object.freeze({ string, makeKey });
+    const string = () => password;
+    const encoder = makeTextEncoder(password);
+    const makeKey = async (/** @type {Uint8Array} */ salt) => {
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(),
+            { name: KEY_DERIVATION_FN },
+            false,
+            ['deriveBits', 'deriveKey'],
+        );
+        return crypto.subtle.deriveKey(
+            { name: KEY_DERIVATION_FN, salt, iterations: 100000, hash: 'SHA-256' },
+            keyMaterial,
+            { name: ALGO_NAME, length: 256 },
+            true,
+            ['encrypt', 'decrypt'],
+        );
+    };
+    return Object.freeze({ string, makeKey });
 };
 
 /**
@@ -124,9 +124,9 @@ export const makePassword = (password) => {
  * @returns {Plaintext}
  */
 export const makePlaintext = (plaintext) => {
-  const encoder = makeTextEncoder(plaintext);
-  const string = () => plaintext;
-  return Object.freeze({ ...encoder, string });
+    const encoder = makeTextEncoder(plaintext);
+    const string = () => plaintext;
+    return Object.freeze({ ...encoder, string });
 };
 
 /**
@@ -136,8 +136,8 @@ export const makePlaintext = (plaintext) => {
  * @returns {string}
  */
 const decodeBytes = (buffer) => {
-  const decoder = new TextDecoder();
-  return decoder.decode(buffer);
+    const decoder = new TextDecoder();
+    return decoder.decode(buffer);
 };
 
 /**
@@ -147,7 +147,7 @@ const decodeBytes = (buffer) => {
  * @returns {Plaintext}
  */
 const makePlaintextFromBytes = (buffer) => {
-  return makePlaintext(decodeBytes(buffer));
+    return makePlaintext(decodeBytes(buffer));
 };
 
 /**
@@ -157,7 +157,7 @@ const makePlaintextFromBytes = (buffer) => {
  * @returns {Ciphertext}
  */
 const makeCiphertext = (buffer) => {
-  return Object.freeze({ buffer: () => buffer });
+    return Object.freeze({ buffer: () => buffer });
 };
 
 /**
@@ -167,7 +167,7 @@ const makeCiphertext = (buffer) => {
  * @returns {Uint8Array}
  */
 const makeRandomBytes = (length) => {
-  return crypto.getRandomValues(new Uint8Array(length));
+    return crypto.getRandomValues(new Uint8Array(length));
 };
 
 /**
@@ -195,26 +195,26 @@ export const makeInitVec = () => makeRandomBytes(12);
  * @returns {Promise<CryptoKey>}
  */
 export const makeKey = async (
-  storageKey = STORAGE_KEY,
-  subtle = SUBTLE_FNS,
-  storage = STORAGE_FNS,
+    storageKey = STORAGE_KEY,
+    subtle = SUBTLE_FNS,
+    storage = STORAGE_FNS,
 ) => {
-  /** @type {HmacKeyGenParams} */
-  const hmacParams = { name: 'HMAC', hash: { name: 'SHA-256' } };
-  /** @type {KeyUsage[]} */
-  const keyUsages = ['sign', 'verify'];
-  const storageFormat = 'jwk';
-  let key;
-  let item = storage.getItem(storageKey);
-  if (!item) {
-    key = await subtle.generateKey(hmacParams, true, keyUsages);
-    const exported = await subtle.exportKey(storageFormat, key);
-    storage.setItem(storageKey, JSON.stringify(exported));
-  } else {
-    const imported = JSON.parse(item);
-    key = await subtle.importKey(storageFormat, imported, hmacParams, true, keyUsages);
-  }
-  return key;
+    /** @type {HmacKeyGenParams} */
+    const hmacParams = { name: 'HMAC', hash: { name: 'SHA-256' } };
+    /** @type {KeyUsage[]} */
+    const keyUsages = ['sign', 'verify'];
+    const storageFormat = 'jwk';
+    let key;
+    let item = storage.getItem(storageKey);
+    if (!item) {
+        key = await subtle.generateKey(hmacParams, true, keyUsages);
+        const exported = await subtle.exportKey(storageFormat, key);
+        storage.setItem(storageKey, JSON.stringify(exported));
+    } else {
+        const imported = JSON.parse(item);
+        key = await subtle.importKey(storageFormat, imported, hmacParams, true, keyUsages);
+    }
+    return key;
 };
 
 /**
@@ -227,10 +227,10 @@ export const makeKey = async (
  * @returns {Promise<{ ciphertext: Ciphertext, salt: Uint8Array, iv: Uint8Array }>}
  */
 export const encrypt = async (password, plaintext, salt = makeSalt(), iv = makeInitVec()) => {
-  const key = await password.makeKey(salt);
-  const buffer = await crypto.subtle.encrypt({ name: ALGO_NAME, iv }, key, plaintext.encode());
-  const ciphertext = makeCiphertext(buffer);
-  return { ciphertext, salt, iv };
+    const key = await password.makeKey(salt);
+    const buffer = await crypto.subtle.encrypt({ name: ALGO_NAME, iv }, key, plaintext.encode());
+    const ciphertext = makeCiphertext(buffer);
+    return { ciphertext, salt, iv };
 };
 
 /**
@@ -243,10 +243,10 @@ export const encrypt = async (password, plaintext, salt = makeSalt(), iv = makeI
  * @returns {Promise<Plaintext>}
  */
 export const decrypt = async (password, ciphertext, salt, iv) => {
-  const key = await password.makeKey(salt);
-  return crypto.subtle
-    .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
-    .then(makePlaintextFromBytes);
+    const key = await password.makeKey(salt);
+    return crypto.subtle
+        .decrypt({ name: ALGO_NAME, iv }, key, ciphertext.buffer())
+        .then(makePlaintextFromBytes);
 };
 
 /**
@@ -256,13 +256,13 @@ export const decrypt = async (password, ciphertext, salt, iv) => {
  * @returns {Readonly<UUIDGenerator>}
  */
 export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
-  /** @type {() => Readonly<UUID>} */
-  const generate = () => {
-    const uuid = impl();
-    const get = () => uuid;
-    return Object.freeze({ get });
-  };
-  return Object.freeze({ generate });
+    /** @type {() => Readonly<UUID>} */
+    const generate = () => {
+        const uuid = impl();
+        const get = () => uuid;
+        return Object.freeze({ get });
+    };
+    return Object.freeze({ generate });
 };
 
 /**
@@ -291,21 +291,21 @@ export const makeUUIDGenerator = (impl = crypto.randomUUID.bind(crypto)) => {
  */
 
 export const makeState = () => {
-  /** @type {(salt?: Uint8Array) => string} */
-  const makeSaltString = (salt = makeSalt()) => {
-    return decodeBytes(salt);
-  };
-  /** @type {(iv?: Uint8Array) => string} */
-  const makeIVString = (iv = makeInitVec()) => {
-    return decodeBytes(iv);
-  };
-  if (!localStorage.salt) {
-    localStorage.salt = makeSaltString();
-  }
-  if (!localStorage.iv) {
-    localStorage.iv = makeIVString();
-  }
-  const saltEncoder = makeTextEncoder(localStorage.salt);
-  const ivEncoder = makeTextEncoder(localStorage.iv);
-  return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
+    /** @type {(salt?: Uint8Array) => string} */
+    const makeSaltString = (salt = makeSalt()) => {
+        return decodeBytes(salt);
+    };
+    /** @type {(iv?: Uint8Array) => string} */
+    const makeIVString = (iv = makeInitVec()) => {
+        return decodeBytes(iv);
+    };
+    if (!localStorage.salt) {
+        localStorage.salt = makeSaltString();
+    }
+    if (!localStorage.iv) {
+        localStorage.iv = makeIVString();
+    }
+    const saltEncoder = makeTextEncoder(localStorage.salt);
+    const ivEncoder = makeTextEncoder(localStorage.iv);
+    return Object.freeze({ salt: saltEncoder.encode, iv: ivEncoder.encode });
 };

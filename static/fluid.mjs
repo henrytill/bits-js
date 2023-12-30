@@ -14,28 +14,28 @@
  * @returns {Readonly<FluidContext>}
  */
 export const makeFluidContext = () => {
-  /** @type {any} */
-  let state;
+    /** @type {any} */
+    let state;
 
-  /** @type {(val: any, cb: (...args: any[]) => any, args?: any[]) => any} */
-  const run = (val, cb, args = []) => {
-    const prev = state;
-    try {
-      state = val;
-      return cb(...args);
-    } finally {
-      state = prev;
-    }
-  };
+    /** @type {(val: any, cb: (...args: any[]) => any, args?: any[]) => any} */
+    const run = (val, cb, args = []) => {
+        const prev = state;
+        try {
+            state = val;
+            return cb(...args);
+        } finally {
+            state = prev;
+        }
+    };
 
-  /** @type {() => any} */
-  const get = () => state;
+    /** @type {() => any} */
+    const get = () => state;
 
-  /** @type {(val: any) => any} */
-  const set = (val) => {
-    state = val;
-    return state;
-  };
+    /** @type {(val: any) => any} */
+    const set = (val) => {
+        state = val;
+        return state;
+    };
 
-  return Object.freeze({ run, get, set });
+    return Object.freeze({ run, get, set });
 };

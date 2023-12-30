@@ -44,19 +44,19 @@
  * @throws {DOMException}
  */
 export const makeObjectStoreCreator = (objectStoreName, objectStoreParameters, indices) => {
-  return (/** @type {IDBDatabase} */ db) => {
-    const objectStore = db.createObjectStore(objectStoreName, objectStoreParameters);
-    for (const { name, keyPath, indexParameters } of indices) {
-      objectStore.createIndex(name, keyPath, indexParameters);
-    }
-    return db;
-  };
+    return (/** @type {IDBDatabase} */ db) => {
+        const objectStore = db.createObjectStore(objectStoreName, objectStoreParameters);
+        for (const { name, keyPath, indexParameters } of indices) {
+            objectStore.createIndex(name, keyPath, indexParameters);
+        }
+        return db;
+    };
 };
 
 /** @enum {number} */
 export const OpenDatabaseResultTag = {
-  SUCCESS: 0,
-  UPGRADE_NEEDED: 1,
+    SUCCESS: 0,
+    UPGRADE_NEEDED: 1,
 };
 
 /**
@@ -75,39 +75,39 @@ export const OpenDatabaseResultTag = {
  * @returns {Promise<OpenDatabaseResult>}
  */
 export const openDatabase = (db, dbName, dbVersion, objectStoreCreator) => {
-  return new Promise((resolve, reject) => {
-    /** @type {IDBOpenDBRequest} */
-    let openRequest;
-    try {
-      openRequest = db.open(dbName, dbVersion);
-      openRequest.onerror = (_) => {
-        return reject(openRequest.error);
-      };
-      openRequest.onsuccess = (_) => {
-        const db = openRequest.result;
-        return resolve({ tag: OpenDatabaseResultTag.SUCCESS, db });
-      };
-      openRequest.onupgradeneeded = (_) => {
+    return new Promise((resolve, reject) => {
+        /** @type {IDBOpenDBRequest} */
+        let openRequest;
         try {
-          const db = objectStoreCreator(openRequest.result);
-          return resolve({ tag: OpenDatabaseResultTag.UPGRADE_NEEDED, db });
+            openRequest = db.open(dbName, dbVersion);
+            openRequest.onerror = (_) => {
+                return reject(openRequest.error);
+            };
+            openRequest.onsuccess = (_) => {
+                const db = openRequest.result;
+                return resolve({ tag: OpenDatabaseResultTag.SUCCESS, db });
+            };
+            openRequest.onupgradeneeded = (_) => {
+                try {
+                    const db = objectStoreCreator(openRequest.result);
+                    return resolve({ tag: OpenDatabaseResultTag.UPGRADE_NEEDED, db });
+                } catch (error) {
+                    if (openRequest.result) {
+                        openRequest.result.close();
+                    }
+                    return reject(error);
+                }
+            };
         } catch (error) {
-          if (openRequest.result) {
-            openRequest.result.close();
-          }
-          return reject(error);
+            return reject(error);
         }
-      };
-    } catch (error) {
-      return reject(error);
-    }
-  });
+    });
 };
 
 /** @enum {number} */
 export const DeleteDatabaseResultTag = {
-  SUCCESS: 0,
-  BLOCKED: 1,
+    SUCCESS: 0,
+    BLOCKED: 1,
 };
 
 /**
@@ -123,16 +123,16 @@ export const DeleteDatabaseResultTag = {
  * @returns {Promise<DeleteDatabaseResult>}
  */
 export const deleteDatabase = (db, dbName) => {
-  return new Promise((resolve, reject) => {
-    const deleteRequest = db.deleteDatabase(dbName);
-    deleteRequest.onerror = (_) => {
-      return reject(deleteRequest.error); // is it even possible to hit this?
-    };
-    deleteRequest.onsuccess = (_) => {
-      return resolve({ tag: DeleteDatabaseResultTag.SUCCESS });
-    };
-    deleteRequest.onblocked = (_) => {
-      return resolve({ tag: DeleteDatabaseResultTag.BLOCKED });
-    };
-  });
+    return new Promise((resolve, reject) => {
+        const deleteRequest = db.deleteDatabase(dbName);
+        deleteRequest.onerror = (_) => {
+            return reject(deleteRequest.error); // is it even possible to hit this?
+        };
+        deleteRequest.onsuccess = (_) => {
+            return resolve({ tag: DeleteDatabaseResultTag.SUCCESS });
+        };
+        deleteRequest.onblocked = (_) => {
+            return resolve({ tag: DeleteDatabaseResultTag.BLOCKED });
+        };
+    });
 };
