@@ -4,7 +4,7 @@
   "scripts": {
     "check": "tsc",
     "lint": "eslint static/*.mjs test/*.mjs",
-    "format": "prettier -w .",
+    "fmt": "prettier -w static test",
     "test": "node --test test",
     "serve": "node server.mjs"
   },
