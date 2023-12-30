@@ -167,6 +167,7 @@ const initAudioContext = () => {
         context.resume();
     }
 };
+
 document.getElementById('playArea')?.addEventListener('mousedown', function () {
     initAudioContext();
     currentVoice?.start();
