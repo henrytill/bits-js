@@ -6,5 +6,9 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["static/**/*", "test/**/*", "server.mjs"]
+  "include": [
+    "static/**/*",
+    "test/**/*",
+    "server.mjs"
+  ]
 }
