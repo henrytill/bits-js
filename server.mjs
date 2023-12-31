@@ -1,4 +1,4 @@
-// eslint-env node
+/* eslint-env node */
 
 /**
  * Basic development server
