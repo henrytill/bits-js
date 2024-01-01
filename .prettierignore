@@ -1,1 +1,5 @@
 .github/
+*.html
+*.css
+*.json
+*.yaml
