@@ -10,10 +10,10 @@ export const PINBOARD_XML = `<?xml version="1.0" encoding="UTF-8"?>
 `;
 
 const parseTest = test.makeTest('parsePosts should parse posts', () => {
-    const parser = new DOMParser();
-    const posts = pinboard.parsePosts(parser, PINBOARD_XML);
-    console.log(posts);
-    test.assert(posts.length === 3);
+  const parser = new DOMParser();
+  const posts = pinboard.parsePosts(parser, PINBOARD_XML);
+  console.log(posts);
+  test.assert(posts.length === 3);
 });
 
 export const tests = [parseTest];

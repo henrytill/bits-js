@@ -7,11 +7,11 @@ let pinboardTestModule;
  * @returns {void}
  */
 function clearResults() {
-    const pinboardResultsDiv = document.getElementById('pinboardResults');
-    if (!pinboardResultsDiv) {
-        throw new Error('pinboardResultsDiv not found');
-    }
-    pinboardResultsDiv.innerHTML = '';
+  const pinboardResultsDiv = document.getElementById('pinboardResults');
+  if (!pinboardResultsDiv) {
+    throw new Error('pinboardResultsDiv not found');
+  }
+  pinboardResultsDiv.innerHTML = '';
 }
 
 /**
@@ -27,18 +27,18 @@ const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` :
  * @returns {Promise<void>}
  */
 async function loadModules(stamp = true) {
-    const timestamp = new Date().getTime();
-    testModule = await import(makePath(stamp, timestamp, './test.mjs'));
-    pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
+  const timestamp = new Date().getTime();
+  testModule = await import(makePath(stamp, timestamp, './test.mjs'));
+  pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
 }
 
 /**
  * @returns {Promise<void>}
  */
 async function runTests() {
-    await Promise.all([
-        testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
-    ]);
+  await Promise.all([
+    testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
+  ]);
 }
 
 /**
@@ -47,18 +47,18 @@ async function runTests() {
  * @returns {Promise<void>}
  */
 async function reload(event) {
-    console.log(event);
-    clearResults();
-    await loadModules(true);
-    return runTests();
+  console.log(event);
+  clearResults();
+  await loadModules(true);
+  return runTests();
 }
 
 await loadModules(false);
 runTests();
 
 try {
-    const eventSource = new EventSource('/events');
-    eventSource.addEventListener('reload', reload);
+  const eventSource = new EventSource('/events');
+  eventSource.addEventListener('reload', reload);
 } catch (err) {
-    console.log('No /events endpoint found.');
+  console.log('No /events endpoint found.');
 }

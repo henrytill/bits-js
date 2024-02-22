@@ -12,18 +12,18 @@
  * @returns {() => U} A thunk that returns the result of `render(value)`.
  */
 export const makeLazy = (value, render) => {
-    let rendered = false;
-    /** @type {U} */
-    let ret;
-    return () => {
-        if (rendered) {
-            return ret;
-        } else {
-            ret = render(value);
-            rendered = true;
-            return ret;
-        }
-    };
+  let rendered = false;
+  /** @type {U} */
+  let ret;
+  return () => {
+    if (rendered) {
+      return ret;
+    } else {
+      ret = render(value);
+      rendered = true;
+      return ret;
+    }
+  };
 };
 
 /**
@@ -39,10 +39,10 @@ export const makeLazy = (value, render) => {
  * @returns {(value: T) => U} A function that takes a value and applies the corresponding pattern to it.
  */
 export const match = (patterns) => (value) => {
-    const pattern = patterns[value.tag] || patterns._;
-    if (typeof pattern === 'function') {
-        return pattern(value);
-    } else {
-        throw new Error(`No matching pattern for value: ${JSON.stringify(value)}`);
-    }
+  const pattern = patterns[value.tag] || patterns._;
+  if (typeof pattern === 'function') {
+    return pattern(value);
+  } else {
+    throw new Error(`No matching pattern for value: ${JSON.stringify(value)}`);
+  }
 };

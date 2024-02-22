@@ -31,10 +31,10 @@
 
 /** @enum {number} */
 export const ResultTag = {
-    OK: 0,
-    UNKNOWN_CALLER: 1,
-    UNAVAILABLE_CAPABILITY: 2,
-    REVOKED_CAPABILITY: 3,
+  OK: 0,
+  UNKNOWN_CALLER: 1,
+  UNAVAILABLE_CAPABILITY: 2,
+  REVOKED_CAPABILITY: 3,
 };
 
 /**
@@ -58,72 +58,72 @@ export const ResultTag = {
  * @type {() => Readonly<Powerbox>}
  */
 export const makePowerbox = () => {
-    /** @type {Caller[]} */
-    const callers = [];
+  /** @type {Caller[]} */
+  const callers = [];
 
-    /**
-     * @param {string} callerId
-     * @param {string} capId
-     * @returns {RequestResult}
-     */
-    const request = (callerId, capId) => {
-        const caller = callers.find((c) => c.id === callerId);
-        if (!caller) {
-            return { tag: ResultTag.UNKNOWN_CALLER, value: null };
-        }
-        const cap = caller.caps[capId];
-        if (!cap) {
-            return { tag: ResultTag.UNAVAILABLE_CAPABILITY, value: null };
-        } else if (cap.isRevoked) {
-            return { tag: ResultTag.REVOKED_CAPABILITY, value: cap.proxy };
-        } else {
-            return { tag: ResultTag.OK, value: cap.proxy };
-        }
-    };
+  /**
+   * @param {string} callerId
+   * @param {string} capId
+   * @returns {RequestResult}
+   */
+  const request = (callerId, capId) => {
+    const caller = callers.find((c) => c.id === callerId);
+    if (!caller) {
+      return { tag: ResultTag.UNKNOWN_CALLER, value: null };
+    }
+    const cap = caller.caps[capId];
+    if (!cap) {
+      return { tag: ResultTag.UNAVAILABLE_CAPABILITY, value: null };
+    } else if (cap.isRevoked) {
+      return { tag: ResultTag.REVOKED_CAPABILITY, value: cap.proxy };
+    } else {
+      return { tag: ResultTag.OK, value: cap.proxy };
+    }
+  };
 
-    /**
-     * @param {string} callerId
-     * @param {string} capId
-     * @param {Object} object
-     */
-    const grant = (callerId, capId, object) => {
-        const proxy = Proxy.revocable(object, {
-            get: Reflect.get,
-            apply: Reflect.apply,
-        });
-        const cap = { ...proxy, isRevoked: false };
-        const caller = callers.find((c) => c.id === callerId);
-        if (!caller) {
-            callers.push({
-                id: callerId,
-                caps: { [capId]: cap },
-            });
-        } else {
-            caller.caps[capId] = cap;
-        }
-    };
+  /**
+   * @param {string} callerId
+   * @param {string} capId
+   * @param {Object} object
+   */
+  const grant = (callerId, capId, object) => {
+    const proxy = Proxy.revocable(object, {
+      get: Reflect.get,
+      apply: Reflect.apply,
+    });
+    const cap = { ...proxy, isRevoked: false };
+    const caller = callers.find((c) => c.id === callerId);
+    if (!caller) {
+      callers.push({
+        id: callerId,
+        caps: { [capId]: cap },
+      });
+    } else {
+      caller.caps[capId] = cap;
+    }
+  };
 
-    /**
-     * @param {string} callerId
-     * @param {string} capId
-     * @returns {RevokeResult}
-     */
-    const revoke = (callerId, capId) => {
-        const caller = callers.find((c) => c.id === callerId);
-        if (!caller) {
-            return { tag: ResultTag.UNKNOWN_CALLER };
-        }
-        const cap = caller.caps[capId];
-        if (!cap) {
-            return { tag: ResultTag.UNAVAILABLE_CAPABILITY };
-        } else if (cap.isRevoked) {
-            return { tag: ResultTag.REVOKED_CAPABILITY };
-        } else {
-            cap.revoke();
-            cap.isRevoked = true;
-            return { tag: ResultTag.OK };
-        }
-    };
+  /**
+   * @param {string} callerId
+   * @param {string} capId
+   * @returns {RevokeResult}
+   */
+  const revoke = (callerId, capId) => {
+    const caller = callers.find((c) => c.id === callerId);
+    if (!caller) {
+      return { tag: ResultTag.UNKNOWN_CALLER };
+    }
+    const cap = caller.caps[capId];
+    if (!cap) {
+      return { tag: ResultTag.UNAVAILABLE_CAPABILITY };
+    } else if (cap.isRevoked) {
+      return { tag: ResultTag.REVOKED_CAPABILITY };
+    } else {
+      cap.revoke();
+      cap.isRevoked = true;
+      return { tag: ResultTag.OK };
+    }
+  };
 
-    return Object.freeze({ request, grant, revoke });
+  return Object.freeze({ request, grant, revoke });
 };
