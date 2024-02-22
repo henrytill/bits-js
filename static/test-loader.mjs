@@ -6,13 +6,13 @@ let pinboardTestModule;
 /**
  * @returns {void}
  */
-function clearResults() {
+const clearResults = () => {
   const pinboardResultsDiv = document.getElementById('pinboardResults');
   if (!pinboardResultsDiv) {
     throw new Error('pinboardResultsDiv not found');
   }
   pinboardResultsDiv.innerHTML = '';
-}
+};
 
 /**
  * @param {boolean} stamp
@@ -26,20 +26,20 @@ const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` :
  * @param {boolean} [stamp]
  * @returns {Promise<void>}
  */
-async function loadModules(stamp = true) {
+const loadModules = async (stamp = true) => {
   const timestamp = new Date().getTime();
   testModule = await import(makePath(stamp, timestamp, './test.mjs'));
   pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
-}
+};
 
 /**
  * @returns {Promise<void>}
  */
-async function runTests() {
+const runTests = async () => {
   await Promise.all([
     testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
   ]);
-}
+};
 
 /**
  * @this {EventSource}
