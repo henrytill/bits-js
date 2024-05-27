@@ -51,7 +51,7 @@ const addFailure = (resultDiv, description, err) => {
  * @param {HTMLElement} resultsDiv
  * @returns {Promise<void>}
  */
-export const runner = async (tests, resultsDiv) => {
+export const run = async (tests, resultsDiv) => {
   if (resultsDiv === null) {
     throw new Error('No test results div found');
   }

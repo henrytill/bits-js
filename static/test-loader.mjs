@@ -37,7 +37,7 @@ const loadModules = async (stamp = true) => {
  */
 const runTests = async () => {
   await Promise.all([
-    testModule.runner(pinboardTestModule.tests, document.getElementById('pinboardResults')),
+    testModule.run(pinboardTestModule.tests, document.getElementById('pinboardResults')),
   ]);
 };
 
