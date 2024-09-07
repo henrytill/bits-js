@@ -17,7 +17,7 @@
  */
 export const parsePosts = (parser, xml) => {
   const document = parser.parseFromString(xml, 'application/xml');
-  let ret = [];
+  const ret = [];
   for (let post of document.querySelectorAll('post')) {
     const hrefstr = post.getAttribute('href');
     if (hrefstr === null) {
