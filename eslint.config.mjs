@@ -15,4 +15,12 @@ export default [
       'no-unused-vars': 'off',
     },
   },
+  {
+    files: ['test/**/*', 'server.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];
