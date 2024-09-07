@@ -4,6 +4,7 @@
   "scripts": {
     "check": "tsc",
     "fmt": "prettier -w static test",
+    "pretest": "tsc",
     "test": "node --test test",
     "serve": "node server.mjs"
   },
