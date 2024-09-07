@@ -3,16 +3,12 @@
   "private": true,
   "scripts": {
     "check": "tsc",
-    "lint": "eslint static test --ext .mjs",
     "fmt": "prettier -w static test",
     "test": "node --test test",
     "serve": "node server.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.14.13",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
     "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   }
