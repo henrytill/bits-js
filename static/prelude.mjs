@@ -46,3 +46,12 @@ export const match = (patterns) => (value) => {
     throw new Error(`No matching pattern for value: ${JSON.stringify(value)}`);
   }
 };
+
+/**
+ * @param {string} path
+ * @param {boolean} [stamp=true]
+ * @param {number} [timestamp]
+ * @returns {string}
+ */
+export const dynamicPath = (path, stamp = true, timestamp = new Date().getTime()) =>
+  stamp ? `${path}?v=${timestamp}` : path;

@@ -1,7 +1,18 @@
-/** @type {any} */
-let testModule;
-/** @type {any} */
-let pinboardTestModule;
+import * as prelude from './prelude.mjs';
+
+/** @typedef {import('./test.mjs')} TestModule */
+/** @typedef {import('./pinboard.test.mjs')} PinboardTestModule*/
+
+/**
+ * @param {boolean} [stamp]
+ * @returns {Promise<{test: TestModule , pinboardTest: PinboardTestModule}>}
+ */
+const loadModules = async (stamp = false) => {
+  const timestamp = new Date().getTime();
+  const test = await import(prelude.dynamicPath('./test.mjs', stamp, timestamp));
+  const pinboardTest = await import(prelude.dynamicPath('./pinboard.test.mjs', stamp, timestamp));
+  return { test, pinboardTest };
+};
 
 /**
  * @returns {void}
@@ -15,30 +26,16 @@ const clearResults = () => {
 };
 
 /**
- * @param {boolean} stamp
- * @param {number} timestamp
- * @param {string} path
- * @returns {string}
- */
-const makePath = (stamp, timestamp, path) => (stamp ? `${path}?v=${timestamp}` : path);
-
-/**
  * @param {boolean} [stamp]
  * @returns {Promise<void>}
  */
-const loadModules = async (stamp = true) => {
-  const timestamp = new Date().getTime();
-  testModule = await import(makePath(stamp, timestamp, './test.mjs'));
-  pinboardTestModule = await import(makePath(stamp, timestamp, './pinboard.test.mjs'));
-};
-
-/**
- * @returns {Promise<void>}
- */
-const runTests = async () => {
-  await Promise.all([
-    testModule.run(pinboardTestModule.tests, document.getElementById('pinboardResults')),
-  ]);
+const runTests = async (stamp) => {
+  const { test, pinboardTest } = await loadModules(stamp);
+  const resultsDiv = document.getElementById('pinboardResults');
+  if (resultsDiv === null) {
+    return Promise.reject('resultsDiv was null');
+  }
+  await Promise.all([test.run(pinboardTest.tests, resultsDiv)]);
 };
 
 /**
@@ -49,16 +46,19 @@ const runTests = async () => {
 async function reload(event) {
   console.log(event);
   clearResults();
-  await loadModules(true);
-  return runTests();
+  return runTests(true);
 }
 
-await loadModules(false);
-runTests();
+async function init() {
+  await runTests();
 
-try {
-  const eventSource = new EventSource('/events');
-  eventSource.addEventListener('reload', reload);
-} catch (err) {
-  console.log('No /events endpoint found.');
+  try {
+    const eventSource = new EventSource('/events');
+    eventSource.addEventListener('reload', reload);
+    window.addEventListener('beforeunload', () => eventSource.close());
+  } catch (err) {
+    console.log('No /events endpoint found.');
+  }
 }
+
+init();
