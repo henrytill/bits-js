@@ -49,16 +49,16 @@ async function reload(event) {
   return runTests(true);
 }
 
-async function init() {
+/**
+ *
+ * @param {string} [url]
+ * @returns {Promise<void>}
+ */
+async function init(url = '/events') {
   await runTests();
-
-  try {
-    const eventSource = new EventSource('/events');
-    eventSource.addEventListener('reload', reload);
-    window.addEventListener('beforeunload', () => eventSource.close());
-  } catch (err) {
-    console.log('No /events endpoint found.');
-  }
+  const eventSource = new EventSource(url);
+  window.addEventListener('beforeunload', () => eventSource.close());
+  eventSource.addEventListener('reload', reload);
 }
 
 init();
