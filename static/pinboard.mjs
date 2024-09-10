@@ -20,7 +20,7 @@ export const parseXml = (parser, xml) => {
 
   const document = parser.parseFromString(xml, 'application/xml');
 
-  for (let post of document.querySelectorAll('post')) {
+  for (const post of document.querySelectorAll('post')) {
     const hrefstr = post.getAttribute('href');
     if (hrefstr === null) {
       console.log('Attempted to parse post without href');
@@ -75,7 +75,7 @@ export const parseHtml = (parser, html) => {
 
   const document = parser.parseFromString(html, 'text/html');
 
-  for (let dt_selector of document.querySelectorAll('dt')) {
+  for (const dt_selector of document.querySelectorAll('dt')) {
     description = undefined;
     extended = undefined;
 

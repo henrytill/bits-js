@@ -156,7 +156,7 @@ function* voiceHandler(context, count) {
   voices.forEach((v) => v.init());
 
   while (true) {
-    for (let voice of voices) {
+    for (const voice of voices) {
       yield voice;
     }
   }
