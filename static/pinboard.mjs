@@ -2,10 +2,10 @@
  * @typedef {Object} Post
  * @property {URL} href
  * @property {Date} time
- * @property {string?} [description]
- * @property {string?} [extended]
+ * @property {string} [description]
+ * @property {string} [extended]
  * @property {string[]} tag
- * @property {string?} [hash]
+ * @property {string} [hash]
  * @property {boolean} shared
  * @property {boolean} toread
  */
@@ -33,8 +33,8 @@ export const parseXml = (parser, xml) => {
       continue;
     }
     const time = new Date(timestr);
-    const description = post.getAttribute('description') || undefined;
-    const extended = post.getAttribute('extended') || undefined;
+    const description = post.getAttribute('description')?.trim() || undefined;
+    const extended = post.getAttribute('extended')?.trim() || undefined;
     const tag = post.getAttribute('tag')?.split(' ') ?? [];
     const hash = post.getAttribute('hash');
     if (hash === null) {
@@ -66,20 +66,14 @@ export const parseXml = (parser, xml) => {
 export const parseHtml = (parser, html) => {
   const ret = [];
 
-  /** @type {NodeListOf<HTMLAnchorElement> | HTMLAnchorElement | undefined} */
-  let anchor_selector;
   /** @type {string | undefined} */
-  let description;
-  /** @type {string | undefined} */
-  let extended;
+  let extended = undefined;
 
   const document = parser.parseFromString(html, 'text/html');
 
   for (const dt_selector of document.querySelectorAll('dt')) {
-    description = undefined;
-    extended = undefined;
-
-    anchor_selector = dt_selector.querySelectorAll('a');
+    /** @type {NodeListOf<HTMLAnchorElement>} */
+    const anchor_selector = dt_selector.querySelectorAll('a');
     if (anchor_selector.length !== 1) {
       console.error(`anchor_selector.length = ${anchor_selector.length}`);
       continue;
@@ -100,10 +94,10 @@ export const parseHtml = (parser, html) => {
     const tag = anchor_element.getAttribute('tags')?.split(',') ?? [];
     const shared = (anchor_element.getAttribute('private') ?? '1') === '0';
     const toread = (anchor_element.getAttribute('toread') ?? '0') === '1';
-    description = anchor_element.textContent?.trim() ?? undefined;
+    const description = anchor_element.textContent?.trim() || undefined;
     const dd_element = dt_selector.nextElementSibling;
     if (dd_element && dd_element.tagName.toLowerCase() === 'dd') {
-      extended = dd_element.textContent?.trim() ?? undefined;
+      extended = dd_element.textContent?.trim() || undefined;
     }
     ret.push({
       href,
