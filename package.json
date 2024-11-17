@@ -1,5 +1,5 @@
 {
-  "name": "js-bits",
+  "name": "bits",
   "private": true,
   "scripts": {
     "check": "tsc",
