@@ -1,6 +1,12 @@
 {
   "name": "bits",
+  "version": "0.1.0",
   "private": true,
+  "files": [
+    "tsconfig.json",
+    "static",
+    "test"
+  ],
   "scripts": {
     "check": "tsc",
     "fmt": "prettier -w static test",
