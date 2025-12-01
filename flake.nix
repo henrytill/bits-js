@@ -36,6 +36,7 @@
           packages = with pkgs; [
             importNpmLock.hooks.linkNodeModulesHook
             nodejs
+            yaml-language-server
           ];
           npmDeps = pkgs.importNpmLock.buildNodeModules {
             inherit npmRoot;
