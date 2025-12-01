@@ -10,3 +10,13 @@ updates:
       all:
         patterns:
           - "*"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 14
+    groups:
+      all:
+        patterns:
+          - "*"
